@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>AngularJS Tutorial</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script src="app.js"></script>
+	<script src="load.js"></script>
+	<script src="getvalues.js"></script>
+	<script src="trace.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
+</head>
+<body ng-app='mainApp' ng-controller="GetSounding">
+
+	<div class="input">
+		Station: <input ng-model="inputStation" type="text" />
+		<br />
+		Year: <input ng-model="inputYear" type="text"/>
+		<br />
+		Month: <input ng-model="inputMonth" type="text"/>
+		<!--<form>-->
+			<!--<select ng-model="inputMonth" ng-options="obj.id as obj.name for obj in monthForm.options"></select>-->
+		<!--</form>-->
+		<br />
+		Day: <input ng-model="inputDay" type="text"/>
+		<br />
+		Hour: <input ng-model="inputHour" type="text"/>
+        <button ng-click="getRaob()">Go</button>
+
+	</div>
+	
+	<div class="info">
+		<!--{{sounding}}-->
+		<h1>{{station}} Sounding on {{timestamp}}</h1>
+		{{testtrace}}
+		{{test2}}
+		{{test3}}
+
+		<ul>
+			<li ng-repeat="point in profile">
+				<span>Pressure: {{point.pres}} mb
+				<br />Temperature: {{point.tmpc}}°C
+				<br />Dewpoint: {{point.dwpc}}°C</span>
+			</li>
+		</uL>
+	</div>
+	
+
+</body>
+</html>
