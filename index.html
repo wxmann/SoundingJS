@@ -45,22 +45,23 @@
 	<!--<h1>{{station}} Sounding on {{timestamp}}</h1>-->
 	<!--<div class="info"> &lt;!&ndash; ng-controller="PlotController" &ndash;&gt;-->
 
-	<svg width="1200" height="900">
+	<svg id="skewT" width="800" height="800">
 		<rect height="800" width="800" style="fill:none; stroke:black; stroke-width: 1"></rect>
-		<polyline id="tempTrace" style="fill:none; stroke:red; stroke-width: 2"></polyline>
-		<polyline id="dewptTrace" style="fill:none; stroke:green; stroke-width: 2"></polyline>
+		<polyline id="tempTrace" style="fill:none; stroke:red; stroke-width: 3"></polyline>
+		<polyline id="dewptTrace" style="fill:none; stroke:green; stroke-width: 3"></polyline>
 	</svg>
 
 	<script>
-		function getSounding() {
-			loadSounding("KOUN", 1999, 5, 3, 12);
-			var theSounding = saved.getSounding();
-			var profile = properties(theSounding).profile;
-			var tempTrace = traces.temperature(profile);
-			var dewptTrace = traces.dewpoint(profile);
-			plotTempTrace(tempTrace, document.getElementById('tempTrace'));
-			plotTempTrace(dewptTrace, document.getElementById('dewptTrace'));
-		}
+		function getSounding() {}
+		loadSounding("KOUN", 1999, 5, 3, 12);
+		var theSounding = saved.getSounding();
+		var profile = properties(theSounding).profile;
+		var tempTrace = traces.temperature(profile);
+		var dewptTrace = traces.dewpoint(profile);
+		plotPressures(document.getElementById('skewT'));
+		plotIsotherms(document.getElementById('skewT'));
+		plotTempTrace(tempTrace, document.getElementById('tempTrace'));
+		plotTempTrace(dewptTrace, document.getElementById('dewptTrace'));
 	</script>
 
 </body>

@@ -6,8 +6,8 @@ var skewTCanvas = (function() {
     var dimensions = {
         height: 800,
         width: 800,
-        x: 1,
-        y: 1
+        x: 0,
+        y: 0
     };
 
     var plotConfig = {
@@ -15,7 +15,9 @@ var skewTCanvas = (function() {
         pMax: 1050,
         tMin: -100,
         tMax: 50,
-        skew: 1.0
+        skew: 1.0,
+        deltaT: 10,
+        deltaP: 50
     };
 
     function pT_Transform(p, T) {
@@ -34,6 +36,8 @@ var skewTCanvas = (function() {
         }
     }
     return {
+        dimensions: dimensions,
+        plotConfig: plotConfig,
         transform: function(p, T) {
             var relCoordinates = pT_Transform(p, T);
             return {
