@@ -2,15 +2,15 @@
  * Created by tangz on 4/15/2016.
  */
 
-var skewTPlot = (function() {
-    var skewTDimensions = {
+var skewTCanvas = (function() {
+    var dimensions = {
         height: 800,
         width: 800,
         x: 1,
         y: 1
     };
 
-    var skewTConfig = {
+    var plotConfig = {
         pMin: 100,
         pMax: 1050,
         tMin: -100,
@@ -19,12 +19,12 @@ var skewTPlot = (function() {
     };
 
     function pT_Transform(p, T) {
-        var pMin = skewTConfig.pMin;
-        var pMax = skewTConfig.pMax;
-        var tMin = skewTConfig.tMin;
-        var tMax = skewTConfig.tMax;
-        var m = skewTConfig.skew;
-        var hwRatio = skewTDimensions.height / skewTDimensions.width;
+        var pMin = plotConfig.pMin;
+        var pMax = plotConfig.pMax;
+        var tMin = plotConfig.tMin;
+        var tMax = plotConfig.tMax;
+        var m = plotConfig.skew;
+        var hwRatio = dimensions.height / dimensions.width;
 
         var relY = Math.log(p / pMin) / Math.log(pMax / pMin);
         var relX = ((T - tMin) / (tMax - tMin)) * (1 + hwRatio) - hwRatio + hwRatio * (1 - relY) / m;
@@ -37,8 +37,8 @@ var skewTPlot = (function() {
         transform: function(p, T) {
             var relCoordinates = pT_Transform(p, T);
             return {
-                x: relCoordinates.relX * skewTDimensions.width + skewTDimensions.x,
-                y: relCoordinates.relY * skewTDimensions.height + skewTDimensions.y
+                x: relCoordinates.relX * dimensions.width + dimensions.x,
+                y: relCoordinates.relY * dimensions.height + dimensions.y
             }
         }
     }

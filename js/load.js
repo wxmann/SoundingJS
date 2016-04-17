@@ -5,20 +5,24 @@
 /* Execute HTTP request and save Sounding object */
 
 var loadSounding = function (station, year, month, day, hour) {
-    var url = getURL(station, year, month, day, hour);
-    executeJSONP(url, callback);
+    // var url = getURL(station, year, month, day, hour);
+    // executeJSONP(url, parseResponse);
+    saved.setSounding(testSounding);
 };
 
-function callback(response) {
+var parseResponse = function(response) {
     var rawData = response.data;
     var converted = convert(rawData);
     sanitize(converted);
     saved.setSounding(converted);
 }
 
-var executeJSONP = function(url, callback) {
-    $.getJSON(url, function(data) {
-        callback(data);
+var executeJSONP = function(url, callbackFn) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'jsonp',
+        jsonpCallback: parseResponse
     });
 };
 

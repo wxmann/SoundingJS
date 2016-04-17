@@ -4,15 +4,9 @@
 
 var properties = function(sounding) {
     return {
-        profile: function() {
-            return sounding.profile;
-        },
-        timestamp: function() {
-            return sounding.value;
-        },
-        station: function () {
-            return sounding.station;
-        }
+        profile: sounding.profile,
+        timestamp: sounding.value,
+        station: sounding.station
     };
 };
 

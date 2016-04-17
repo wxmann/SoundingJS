@@ -9,6 +9,8 @@
 	<script src="js/coordinates.js"></script>
 	<script src="js/load.js"></script>
 	<script src="js/accessors.js"></script>
+	<script src="js/plot.js"></script>
+	<script src="test/dummysounding.js"></script>
 </head>
 <body>
 
@@ -38,22 +40,24 @@
 
 	<p id="info"></p>
 	
+
+	<!--<h1>{{station}} Sounding on {{timestamp}}</h1>-->
+	<!--<div class="info"> &lt;!&ndash; ng-controller="PlotController" &ndash;&gt;-->
+
+		<svg width="1200" height="900">
+			<rect height="800" width="800" style="fill:none; stroke:black; stroke-width: 1"></rect>
+			<polyline id="tempTrace" style="fill:none; stroke:red; stroke-width: 2"></polyline>
+		</svg>
+
 	<script>
 		function getSounding() {
 			loadSounding("KOUN", 1999, 5, 3, 12);
 			var theSounding = saved.getSounding();
-			document.getElementById("info").innerHTML = JSON.stringify(theSounding);
+			var profile = properties(theSounding).profile;
+			var tempTrace = traces.temperature(profile);
+			plotTempTrace(tempTrace, document.getElementById('tempTrace'));
 		}
 	</script>
-	<!--<h1>{{station}} Sounding on {{timestamp}}</h1>-->
-	<!--<div class="info"> &lt;!&ndash; ng-controller="PlotController" &ndash;&gt;-->
-
-		<!--<svg width="1200" height="900">-->
-			<!--<rect height="800" width="800" style="fill:none; stroke:black; stroke-width: 1"></rect>-->
-			<!--&lt;!&ndash;<polyline points="0,0 100,10 250,40" style="fill:none; stroke:red; stroke-width: 3"/>&ndash;&gt;-->
-			<!--<polyline points="{{temppoints}}" style="fill:none; stroke:red; stroke-width: 2"></polyline>-->
-		<!--</svg>-->
-
 		<!--<ul>-->
 			<!--<li ng-repeat="point in {{profile}}">-->
 				<!--<span>Pressure: {{point.pres}} mb-->
