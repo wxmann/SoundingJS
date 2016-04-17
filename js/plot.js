@@ -4,12 +4,11 @@
 
 var plotTempTrace = function(trace, lineElem) {
     var allpoints = [];
-    for (var pres in trace) {
-        if (trace.hasOwnProperty(pres)) {
-            var temp = trace[pres];
-            var pair = [Number(pres), temp].toString();
-            allpoints.push(pair);
-        }
-    }
+    trace.pressures.forEach(function(pres) {
+        var T = trace.getValue(pres);
+        var p = Number(pres);
+        var coord = skewTCanvas.transform(p, T);
+        allpoints.push([coord.x, coord.y].toString());
+    });
     lineElem.setAttribute('points', allpoints.join(" "));
 };

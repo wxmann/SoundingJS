@@ -6,10 +6,11 @@
 	<!--<link rel="stylesheet" href="main.css">-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 	<script src="js/sounding.js"></script>
-	<script src="js/coordinates.js"></script>
+	<script src="js/plot-area.js"></script>
 	<script src="js/load.js"></script>
 	<script src="js/accessors.js"></script>
 	<script src="js/plot.js"></script>
+	<script src="js/trace.js"></script>
 	<script src="test/dummysounding.js"></script>
 </head>
 <body>
@@ -39,15 +40,16 @@
 	</div>
 
 	<p id="info"></p>
-	
+
 
 	<!--<h1>{{station}} Sounding on {{timestamp}}</h1>-->
 	<!--<div class="info"> &lt;!&ndash; ng-controller="PlotController" &ndash;&gt;-->
 
-		<svg width="1200" height="900">
-			<rect height="800" width="800" style="fill:none; stroke:black; stroke-width: 1"></rect>
-			<polyline id="tempTrace" style="fill:none; stroke:red; stroke-width: 2"></polyline>
-		</svg>
+	<svg width="1200" height="900">
+		<rect height="800" width="800" style="fill:none; stroke:black; stroke-width: 1"></rect>
+		<polyline id="tempTrace" style="fill:none; stroke:red; stroke-width: 2"></polyline>
+		<polyline id="dewptTrace" style="fill:none; stroke:green; stroke-width: 2"></polyline>
+	</svg>
 
 	<script>
 		function getSounding() {
@@ -55,18 +57,11 @@
 			var theSounding = saved.getSounding();
 			var profile = properties(theSounding).profile;
 			var tempTrace = traces.temperature(profile);
+			var dewptTrace = traces.dewpoint(profile);
 			plotTempTrace(tempTrace, document.getElementById('tempTrace'));
+			plotTempTrace(dewptTrace, document.getElementById('dewptTrace'));
 		}
 	</script>
-		<!--<ul>-->
-			<!--<li ng-repeat="point in {{profile}}">-->
-				<!--<span>Pressure: {{point.pres}} mb-->
-				<!--<br />Temperature: {{point.tmpc}}°C-->
-				<!--<br />Dewpoint: {{point.dwpc}}°C</span>-->
-			<!--</li>-->
-		<!--</uL>-->
-	<!--</div>-->
-	
 
 </body>
 </html>
