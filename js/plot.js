@@ -6,9 +6,10 @@ var SVG_NS = 'http://www.w3.org/2000/svg';
 
 var plotSkewTBoundary = function(skewT) {
     var rect = document.createElementNS(SVG_NS, 'rect');
+    var dim = skewTCanvas.dimensions;
     rect.setAttribute('style', 'fill:none; stroke:black; stroke-width: 1');
-    rect.setAttribute('height', skewTCanvas.dimensions.height.toString());
-    rect.setAttribute('width', skewTCanvas.dimensions.width.toString());
+    rect.setAttribute('height', dim.height.toString());
+    rect.setAttribute('width', dim.width.toString());
     skewT.appendChild(rect);
 };
 
@@ -115,5 +116,93 @@ var plotDryAdiabats = function (skewT) {
         path.setAttribute('style', 'fill:none; stroke:orange; opacity:0.75; stroke-width: 1');
         path.setAttribute('stroke-dasharray', '20,10,5,5,5,10');
         skewT.appendChild(path);
+    });
+};
+
+function getWindBarb(windspd, winddir, coord) {
+    var mainBarb = document.createElementNS(SVG_NS, 'path');
+    var parts = [];
+    parts.push(["M", coord.x, coord.y].join(" "));
+    // wind barb properties
+    var barbLength = windBarbCanvas.barbConfig.barbLength;
+    var longBarbHeight = windBarbCanvas.barbConfig.longBarbHeight;
+    var shortBarbHeight = windBarbCanvas.barbConfig.shortBarbHeight;
+    var flagWidth = windBarbCanvas.barbConfig.flagWidth;
+    var barbSpacing = windBarbCanvas.barbConfig.barbSpacing;
+
+    // draw barb to point north initially
+    var barbEndCoord = {x: coord.x, y: coord.y - barbLength};
+    parts.push(["L", barbEndCoord.x, barbEndCoord.y].join(" "));
+
+    // calculate number of 50kt-flags, 10kt-barbs, 5kt-barbs
+    var left = windspd;
+    var fiftyKtFlags = 0;
+    var tenKtBarbs = 0;
+    var fiveKtBarbs = 0;
+    while (left >= 50) {
+        fiftyKtFlags++;
+        left -= 50;
+    }
+    while (left >= 10) {
+        tenKtBarbs++;
+        left -= 10;
+    }
+    while (left >= 5) {
+        fiveKtBarbs++;
+        left -= 5;
+    }
+    var currentPosition = barbEndCoord;
+
+    // related to filling in the flags. Don't fill initially
+    mainBarb.setAttribute('style', 'fill:none; stroke:black; opacity:1; stroke-width: 1');
+
+    // draw the 50kt barbs, if applicable
+    for (var i = 0; i < fiftyKtFlags; i++) {
+        var triApex = {x: barbEndCoord.x + longBarbHeight, y: barbEndCoord.y + (flagWidth / 2)};
+        var triEnd = {x: barbEndCoord.x, y: barbEndCoord.y + flagWidth};
+        parts.push(["L", triApex.x, triApex.y].join(" "));
+        parts.push(["L", triEnd.x, triEnd.y].join(" "));
+        currentPosition.y += (barbSpacing + flagWidth);
+        parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
+
+        // do fill in flags if they exist.
+        mainBarb.setAttribute('style', 'fill:black; stroke:black; opacity:1; stroke-width: 1');
+    }
+
+    // draw the 10kt barbs, if applicable
+    for (var i = 0; i < tenKtBarbs; i++) {
+        var barbApex = {x: currentPosition.x + longBarbHeight, y: currentPosition.y};
+        parts.push(["L", barbApex.x, barbApex.y].join(" "));
+        currentPosition.y += barbSpacing;
+        parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
+    }
+
+    // draw the 5kt barbs, if applicable
+    for (var i = 0; i < fiveKtBarbs; i++) {
+        var barbApex = {x: currentPosition.x + shortBarbHeight, y: currentPosition.y};
+        parts.push(["L", barbApex.x, barbApex.y].join(" "));
+        currentPosition.y += barbSpacing;
+        parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
+    }
+
+    mainBarb.setAttribute('d', parts.join(" "));
+
+    // incorporate wind dir and rotation
+    mainBarb.setAttribute('transform', 'rotate(' + [winddir, coord.x, coord.y].join(" ") + ')');
+    return mainBarb;
+}
+
+var plotWindBarbs = function (profile, windBarbLiner) {
+    var trace = traces.wind(profile);
+    var i = 0;
+    trace.pressures.forEach(function (p) {
+        if (i % windBarbCanvas.barbConfig.deltaBarb == 0) {
+            var wind = trace.getValue(p);
+            var yCoord = skewTCanvas.transform(p, 0).y;
+            var xCoord = windBarbCanvas.dimensions.width / 2;
+            var barb = getWindBarb(wind.speed, wind.dir, {x: xCoord, y: yCoord});
+            windBarbLiner.appendChild(barb);
+        }
+        i++;
     });
 };

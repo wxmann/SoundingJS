@@ -2,12 +2,16 @@
  * Created by tangz on 4/15/2016.
  */
 
+var baseHeight = 800;
+var skewTAspectRatio = 1;
+var padding = 20;
+
 var skewTCanvas = (function() {
     var dimensions = {
-        height: 800,
-        width: 800,
-        x: 0,
-        y: 0
+        height: baseHeight,
+        width: skewTAspectRatio * baseHeight,
+        dx: padding,
+        dy: padding
     };
 
     var plotConfig = {
@@ -50,9 +54,34 @@ var skewTCanvas = (function() {
         transform: function(p, T) {
             var relCoordinates = pT_Transform(p, T);
             return {
-                x: relCoordinates.relX * dimensions.width + dimensions.x,
-                y: relCoordinates.relY * dimensions.height + dimensions.y
+                x: relCoordinates.relX * dimensions.width,
+                y: relCoordinates.relY * dimensions.height
             }
         }
     }
+})();
+
+var windBarbCanvas = (function () {
+    var thisWidth = 100;
+    var dimensions = {
+        height: 1.5 * baseHeight,
+        width: thisWidth,
+        dx: skewTAspectRatio * baseHeight + padding,
+        dy: padding
+    };
+
+    var barbLengthBase = 36;
+    var barbConfig = {
+        barbLength: thisWidth / 2.5,
+        longBarbHeight: barbLengthBase / 3,
+        shortBarbHeight: barbLengthBase / 6,
+        flagWidth: barbLengthBase / 6,
+        barbSpacing: barbLengthBase / 8,
+        deltaBarb: 3
+    };
+
+    return {
+        dimensions: dimensions,
+        barbConfig: barbConfig
+    };
 })();

@@ -46,8 +46,11 @@
 	<!--<h1>{{station}} Sounding on {{timestamp}}</h1>-->
 	<!--<div class="info"> &lt;!&ndash; ng-controller="PlotController" &ndash;&gt;-->
 
-	<svg id="skewT">
+	<svg id="container" width="1200" height="1200" xmlns="http://www.w3.org/2000/svg">
+		<svg id="skewT"></svg>
+		<svg id="windBarbLiner"></svg>
 	</svg>
+
 
 	<script>
 		function getSounding() {}
@@ -56,6 +59,8 @@
 		var profile = properties(theSounding).profile;
 
 		var skewT = document.getElementById('skewT');
+		skewT.setAttribute('x', skewTCanvas.dimensions.dx.toString());
+		skewT.setAttribute('y', skewTCanvas.dimensions.dy.toString());
 		skewT.setAttribute('width', skewTCanvas.dimensions.width.toString());
 		skewT.setAttribute('height', skewTCanvas.dimensions.height.toString());
 		plotSkewTBoundary(skewT);
@@ -65,6 +70,13 @@
 		plotDryAdiabats(skewT);
 		plotTempTrace(profile, skewT);
 		plotDewptTrace(profile, skewT);
+
+		var windBarbLiner = document.getElementById('windBarbLiner');
+		windBarbLiner.setAttribute('x', windBarbCanvas.dimensions.dx.toString());
+		windBarbLiner.setAttribute('y', windBarbCanvas.dimensions.dy.toString());
+		windBarbLiner.setAttribute('width', windBarbCanvas.dimensions.width.toString());
+		windBarbLiner.setAttribute('height', windBarbCanvas.dimensions.height.toString());
+		plotWindBarbs(profile, windBarbLiner);
 	</script>
 
 </body>
