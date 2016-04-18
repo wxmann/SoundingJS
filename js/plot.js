@@ -2,6 +2,16 @@
  * Created by tangz on 4/17/2016.
  */
 
+var SVG_NS = 'http://www.w3.org/2000/svg';
+
+var plotSkewTBoundary = function(skewT) {
+    var rect = document.createElementNS(SVG_NS, 'rect');
+    rect.setAttribute('style', 'fill:none; stroke:black; stroke-width: 1');
+    rect.setAttribute('height', skewTCanvas.dimensions.height.toString());
+    rect.setAttribute('width', skewTCanvas.dimensions.width.toString());
+    skewT.appendChild(rect);
+};
+
 var plotTempTrace = function(profile, skewT) {
     var trace = traces.temperature(profile);
     var style = "fill:none; stroke:red; stroke-width: 3";
@@ -29,7 +39,7 @@ function plotTraceWithStyle(trace, skewT, style) {
 
 function getPath(coords) {
     var allpoints = [];
-    var line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    var line = document.createElementNS(SVG_NS, 'polyline');
     coords.forEach(function(coord) {
         allpoints.push([coord.x, coord.y].toString());
     });
