@@ -2,16 +2,30 @@
  * Created by tangz on 4/17/2016.
  */
 
-var plotTempTrace = function(trace, lineElem) {
-    var allpoints = [];
+var plotTempTrace = function(profile, skewT) {
+    var trace = traces.temperature(profile);
+    var style = "fill:none; stroke:red; stroke-width: 3";
+    plotTraceWithStyle(trace, skewT, style);
+};
+
+var plotDewptTrace = function (profile, skewT) {
+    var trace = traces.dewpoint(profile);
+    var style = "fill:none; stroke:green; stroke-width: 3";
+    plotTraceWithStyle(trace, skewT, style);
+};
+
+function plotTraceWithStyle(trace, skewT, style) {
+    var coords = [];
     trace.pressures.forEach(function(pres) {
         var T = trace.getValue(pres);
         var p = Number(pres);
         var coord = skewTCanvas.transform(p, T);
-        allpoints.push([coord.x, coord.y].toString());
+        coords.push(coord);
     });
-    lineElem.setAttribute('points', allpoints.join(" "));
-};
+    var path = getPath(coords);
+    path.setAttribute('style', style);
+    skewT.appendChild(path);
+}
 
 function getPath(coords) {
     var allpoints = [];
