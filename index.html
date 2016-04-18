@@ -11,6 +11,7 @@
 	<script src="js/accessors.js"></script>
 	<script src="js/plot.js"></script>
 	<script src="js/trace.js"></script>
+	<script src="js/basic-calc.js"></script>
 	<script src="test/dummysounding.js"></script>
 </head>
 <body>
@@ -58,8 +59,12 @@
 		var profile = properties(theSounding).profile;
 		var tempTrace = traces.temperature(profile);
 		var dewptTrace = traces.dewpoint(profile);
-		plotPressures(document.getElementById('skewT'));
-		plotIsotherms(document.getElementById('skewT'));
+
+		var skewT = document.getElementById('skewT');
+		plotPressures(skewT);
+		plotIsotherms(skewT);
+		plotMixingRatios(skewT);
+		plotDryAdiabats(skewT);
 		plotTempTrace(tempTrace, document.getElementById('tempTrace'));
 		plotTempTrace(dewptTrace, document.getElementById('dewptTrace'));
 	</script>

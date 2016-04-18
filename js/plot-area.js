@@ -11,13 +11,22 @@ var skewTCanvas = (function() {
     };
 
     var plotConfig = {
+        // pressure
         pMin: 100,
         pMax: 1050,
+        deltaP: 50,
+        // temperature
         tMin: -100,
-        tMax: 50,
-        skew: 1.0,
+        tMax: 40,
         deltaT: 10,
-        deltaP: 50
+        skew: 0.9,
+        // mixing ratios
+        mixingRatios: [0.4, 1, 2, 4, 7, 10, 16, 24, 32, 40],
+        // dry adiabats
+        thetaMin: -30,
+        thetaMax: 160,
+        deltaTheta: 10,
+        deltaPAdiabatPlot: 25
     };
 
     function pT_Transform(p, T) {
