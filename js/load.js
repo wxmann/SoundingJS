@@ -15,7 +15,7 @@ var parseResponse = function(response) {
     var converted = convert(rawData);
     sanitize(converted);
     saved.setSounding(converted);
-}
+};
 
 var executeJSONP = function(url, callbackFn) {
     $.ajax({

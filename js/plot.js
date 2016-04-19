@@ -16,16 +16,20 @@ var plotSkewTBoundary = function(skewT) {
 var plotTempTrace = function(profile, skewT) {
     var trace = traces.temperature(profile);
     var style = "fill:none; stroke:red; stroke-width: 3";
-    plotTraceWithStyle(trace, skewT, style);
+    var id = 'tempTrace';
+    var elem = getTraceElement(trace, id, style);
+    skewT.appendChild(elem);
 };
 
 var plotDewptTrace = function (profile, skewT) {
     var trace = traces.dewpoint(profile);
     var style = "fill:none; stroke:green; stroke-width: 3";
-    plotTraceWithStyle(trace, skewT, style);
+    var id = 'dewptTrace';
+    var elem = getTraceElement(trace, id, style);
+    skewT.appendChild(elem);
 };
 
-function plotTraceWithStyle(trace, skewT, style) {
+function getTraceElement(trace, id, style) {
     var coords = [];
     trace.pressures.forEach(function(pres) {
         var T = trace.getValue(pres);
@@ -35,7 +39,8 @@ function plotTraceWithStyle(trace, skewT, style) {
     });
     var path = getPath(coords);
     path.setAttribute('style', style);
-    skewT.appendChild(path);
+    path.setAttribute('id', id);
+    return path;
 }
 
 function getPath(coords) {
@@ -48,17 +53,26 @@ function getPath(coords) {
     return line;
 }
 
+function createGroupElement(id, style) {
+    var groupElem = document.createElementNS(SVG_NS, 'g');
+    groupElem.id = id;
+    groupElem.style = style;
+    return groupElem;
+}
+
 var plotIsotherms = function(skewT) {
     var isotherms = [];
     for (var temp = skewTCanvas.plotConfig.tMin; temp <= skewTCanvas.plotConfig.tMax; temp += skewTCanvas.plotConfig.deltaT) {
         isotherms.push(temp);
     }
+    var g = createGroupElement('isotherms', 'fill:none; stroke:gray; opacity:0.7; stroke-width: 1');
+    skewT.appendChild(g);
+
     isotherms.forEach(function(T) {
         var topCoord = skewTCanvas.transform(skewTCanvas.plotConfig.pMin, T);
         var bottomCoord = skewTCanvas.transform(skewTCanvas.plotConfig.pMax, T);
         var path = getPath([topCoord, bottomCoord]);
-        skewT.appendChild(path);
-        path.setAttribute('style', 'fill:none; stroke:gray; opacity:0.5; stroke-width: 1');
+        g.appendChild(path);
     });
 };
 
@@ -67,17 +81,22 @@ var plotPressures = function (skewT) {
     for (var pres = skewTCanvas.plotConfig.pMin; pres <= skewTCanvas.plotConfig.pMax; pres += skewTCanvas.plotConfig.deltaP) {
         pressures.push(pres);
     }
+    var g = createGroupElement('pressures', 'fill:none; stroke:gray; opacity:0.7; stroke-width: 1');
+    skewT.appendChild(g);
+
     pressures.forEach(function(p) {
         var leftCoord = skewTCanvas.transform(p, skewTCanvas.plotConfig.tMin);
         var rightCoord = skewTCanvas.transform(p, skewTCanvas.plotConfig.tMax);
         var path = getPath([leftCoord, rightCoord]);
-        skewT.appendChild(path);
-        path.setAttribute('style', 'fill:none; stroke:gray; opacity:0.7; stroke-width: 1');
+        g.appendChild(path);
     });
 };
 
 var plotMixingRatios = function (skewT) {
     var mixingRatios = skewTCanvas.plotConfig.mixingRatios;
+    var g = createGroupElement('mixingRatios', 'fill:none; stroke:pink; opacity:1; stroke-width: 1; stroke-dasharray: 10,5');
+    skewT.appendChild(g);
+
     mixingRatios.forEach(function(mixingRatio) {
         var bottomP = skewTCanvas.plotConfig.pMin;
         var bottomT = mixingRatio_tempC(bottomP, mixingRatio);
@@ -88,9 +107,7 @@ var plotMixingRatios = function (skewT) {
         var topCoord = skewTCanvas.transform(topP, topT);
 
         var path = getPath([bottomCoord, topCoord]);
-        skewT.appendChild(path);
-        path.setAttribute('style', 'fill:none; stroke:pink; opacity:1; stroke-width: 1');
-        path.setAttribute('stroke-dasharray', '10,5')
+        g.appendChild(path);
     });
 };
 
@@ -99,11 +116,12 @@ var plotDryAdiabats = function (skewT) {
     for (var theta = skewTCanvas.plotConfig.thetaMin; theta <= skewTCanvas.plotConfig.thetaMax; theta += skewTCanvas.plotConfig.deltaTheta) {
         thetas.push(theta);
     }
-    
     var pressurePoints = [];
     for (var p = skewTCanvas.plotConfig.pMin; p <= skewTCanvas.plotConfig.pMax; p += skewTCanvas.plotConfig.deltaPAdiabatPlot) {
         pressurePoints.push(p);
     }
+    var g = createGroupElement('dryAdiabats', 'fill:none; stroke:orange; opacity:0.75; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+    skewT.appendChild(g);
 
     thetas.forEach(function (theta) {
         var coords = [];
@@ -113,9 +131,7 @@ var plotDryAdiabats = function (skewT) {
             coords.push(coord);
         });
         var path = getPath(coords);
-        path.setAttribute('style', 'fill:none; stroke:orange; opacity:0.75; stroke-width: 1');
-        path.setAttribute('stroke-dasharray', '20,10,5,5,5,10');
-        skewT.appendChild(path);
+        g.appendChild(path);
     });
 };
 
@@ -154,7 +170,7 @@ function getWindBarb(windspd, winddir, coord) {
     var currentPosition = barbEndCoord;
 
     // related to filling in the flags. Don't fill initially
-    mainBarb.setAttribute('style', 'fill:none; stroke:black; opacity:1; stroke-width: 1');
+    mainBarb.style.fill = 'none';
 
     // draw the 50kt barbs, if applicable
     for (var i = 0; i < fiftyKtFlags; i++) {
@@ -166,7 +182,7 @@ function getWindBarb(windspd, winddir, coord) {
         parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
 
         // do fill in flags if they exist.
-        mainBarb.setAttribute('style', 'fill:black; stroke:black; opacity:1; stroke-width: 1');
+        mainBarb.style.fill = 'black';
     }
 
     // draw the 10kt barbs, if applicable
@@ -195,13 +211,16 @@ function getWindBarb(windspd, winddir, coord) {
 var plotWindBarbs = function (profile, windBarbLiner) {
     var trace = traces.wind(profile);
     var i = 0;
+    var g = createGroupElement('windBarbs', 'stroke:black; opacity:1; stroke-width: 1');
+    windBarbLiner.appendChild(g);
+
     trace.pressures.forEach(function (p) {
         if (i % windBarbCanvas.barbConfig.deltaBarb == 0) {
             var wind = trace.getValue(p);
             var yCoord = skewTCanvas.transform(p, 0).y;
             var xCoord = windBarbCanvas.dimensions.width / 2;
             var barb = getWindBarb(wind.speed, wind.dir, {x: xCoord, y: yCoord});
-            windBarbLiner.appendChild(barb);
+            g.appendChild(barb);
         }
         i++;
     });
