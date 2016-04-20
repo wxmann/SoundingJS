@@ -49,7 +49,7 @@ var dryAdiabat = function(p, T) {
     return temp_KtoC(theta);
 };
 
-var moistAdiabat = function(p, T) {
+var thetaE = function(p, T) {
     var Tk = temp_CtoK(T);
     var expArg = -2.6518986 * mixingRatio(p, T) / Tk;
     var thetaS = temp_CtoK(dryAdiabat(p, T)) / Math.exp(expArg);
@@ -63,10 +63,10 @@ var moistAdiabat = function(p, T) {
  * @param r the environmental mixing ratio in g/kg
  * @returns {number}
  */
-var lclT_from_r = function(T, r) {
-    var Tk = temp_CtoK(T);
-    return temp_KtoC(2480 / (3.5 * Math.log(Tk) - Math.log(r) - 4.805) + 55);
-};
+// var lclT_from_r = function(T, r) {
+//     var Tk = temp_CtoK(T);
+//     return temp_KtoC(2480 / (3.5 * Math.log(Tk) - Math.log(r) - 4.805) + 55);
+// };
 
 /**
  * Finds temperature at pressure level given saturation mixing ratio.
@@ -94,24 +94,35 @@ var temp_KtoC = function(T) {
 
 /**
  * Finds temperature at pressure level given potential temperature theta.
- * Taken from Stipanuck (1973).
+ * Adapted from Bolton (1980).
  *
  * @param p the pressure level in hPa
  * @param theta the potential temperature, in Celsius.
  */
 var tempAtDryAdiabat = function(p, theta) {
     var thetaK = temp_CtoK(theta);
-    var Tk = thetaK * Math.pow(p / pRef, 0.288);
+    var Tk = thetaK * Math.pow(p / pRef, poissonDry);
     return temp_KtoC(Tk);
 };
 
+/**
+ * Finds temperature at pressure level for moist adiabat with wet-bulb potential temperature theta-w.
+ *
+ * @param p pressure level, in hPa
+ * @param thetaw the wet-bulb potential temperature for the pseudoadiabat, in Celsius
+ */
 var tempAtMoistAdiabat = function(p, thetaw) {
-    var thetae = thetaeFromThetaw(thetaw);
-    return tempAtThetae(p, thetae);
+    var thetae = thetaE_from_thetaW(thetaw);
+    return tempAtThetaE(p, thetae);
 };
 
-// Bolton 1980
-var thetaeFromThetaw = function(thetaw) {
+/**
+ * Calculate equivalent potential temperature (theta-e) from wet-bulb potential temperature (theta-w).
+ * Taken from Bolton (1980).
+ *
+ * @param thetaw wet-bulb potential temperature, in Celsius.
+ */
+var thetaE_from_thetaW = function(thetaw) {
     var es = satVaporPres(thetaw);
     var rs = 622 * es / (1000 - es);
     var thetaw_K = temp_CtoK(thetaw);
@@ -119,10 +130,17 @@ var thetaeFromThetaw = function(thetaw) {
     return temp_KtoC(thetae_K);
 };
 
-var tempAtThetae = function(p, thetae) {
+/**
+ * Calculate temperature at a given theta-e and pressure level. Iterative algorithm adapted from
+ * Stipanuck (1973).
+ *
+ * @param p pressure level, in hPa
+ * @param thetae equivalent potential temperature, in Celsius.
+ */
+var tempAtThetaE = function(p, thetae) {
     var TguessK = 253.16;
     var adjustment = 120;
-    var thetaSGuess = temp_CtoK(moistAdiabat(p, temp_KtoC(TguessK)));
+    var thetaSGuess = temp_CtoK(thetaE(p, temp_KtoC(TguessK)));
     var i = 0;
     var eps = 1E-6;
     var maxIterations = 50;
@@ -135,33 +153,11 @@ var tempAtThetae = function(p, thetae) {
         } else {
             TguessK -= adjustment;
         }
-        thetaSGuess = temp_CtoK(moistAdiabat(p, temp_KtoC(TguessK)));
+        thetaSGuess = temp_CtoK(thetaE(p, temp_KtoC(TguessK)));
         i++;
     }
     return temp_KtoC(TguessK);
-    // var tq = 253.16;
-    // var d = 120;
-    // var a = temp_CtoK(thetaS);
-    // for (var i = 0; i < 12; i++) {
-    //     d /= 2;
-    //     var x = a * Math.exp(-2.6518986 * mixingRatio(p, temp_KtoC(tq)) / tq) - tq * Math.pow(pRef / p, 0.288);
-    //     if (Math.abs(x) <= 0.000001) {
-    //         break;
-    //     } else {
-    //         tq += sgn(d, x);
-    //     }
-    // }
-    // return temp_KtoC(tq);
 };
-
-// takes the sign of y and applies it to x
-function sgn(x, y) {
-    if (y < 0) {
-        return -Math.abs(x);
-    } else {
-        return Math.abs(x);
-    }
-}
 
 function log10(x) {
     return Math.log(x) / Math.log(10);
