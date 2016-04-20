@@ -6,6 +6,19 @@ var baseHeight = 800;
 var skewTAspectRatio = 1;
 var padding = 20;
 
+var seq = function(minVal, maxVal, delta) {
+    var arr = [];
+    for (var val = minVal; val <= maxVal; val += delta) {
+        arr.push(val);
+    }
+
+    return {
+        min: minVal,
+        max: maxVal,
+        values: arr
+    }
+};
+
 var skewTCanvas = (function() {
     var dimensions = {
         height: baseHeight,
@@ -14,32 +27,35 @@ var skewTCanvas = (function() {
         dy: padding
     };
 
+    var pSeq = seq(100, 1050, 50),
+        tSeq = seq(-100, 40, 10),
+        thetaSeq = seq(-30, 160, 10),
+        thetaWSeq = seq(-30, 60, 10);
+
     var plotConfig = {
         // pressure
-        pMin: 100,
-        pMax: 1050,
-        deltaP: 50,
+        isobars: pSeq.values,
+        pMin: pSeq.min,
+        pMax: pSeq.max,
 
         // temperature
-        tMin: -100,
-        tMax: 40,
-        deltaT: 10,
+        isotherms: tSeq.values,
+        tMin: tSeq.min,
+        tMax: tSeq.max,
         skew: 0.9,
 
         // mixing ratios
         mixingRatios: [0.4, 1, 2, 4, 7, 10, 16, 24, 32, 40],
 
         // adiabats
-        thetaMin: -30,
-        thetaMax: 160,
-        deltaTheta: 10,
-        deltaPDryAdiabat: 25,
+        dryAdiabats: thetaSeq.values,
+        thetaMin: thetaSeq.min,
+        thetaMax: thetaSeq.max,
 
         // moist adiabats
-        thetaWMin: -30,
-        thetaWMax: 60,
-        deltaThetaW: 10,
-        deltaPMoistAdiabat: 25
+        moistAdiabats: thetaWSeq.values,
+        thetaWMin: thetaSeq.min,
+        thetaWMax: thetaSeq.max
     };
 
     function pT_Transform(p, T) {
