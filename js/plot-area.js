@@ -26,11 +26,11 @@ var skewTCanvas = (function() {
         skew: 0.9,
         // mixing ratios
         mixingRatios: [0.4, 1, 2, 4, 7, 10, 16, 24, 32, 40],
-        // dry adiabats
+        // adiabats
         thetaMin: -30,
         thetaMax: 160,
         deltaTheta: 10,
-        deltaPAdiabatPlot: 25
+        deltaPAdiabat: 25
     };
 
     function pT_Transform(p, T) {

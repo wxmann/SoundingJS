@@ -99,11 +99,11 @@ var plotMixingRatios = function (skewT) {
 
     mixingRatios.forEach(function(mixingRatio) {
         var bottomP = skewTCanvas.plotConfig.pMin;
-        var bottomT = mixingRatio_tempC(bottomP, mixingRatio);
+        var bottomT = tempAtMixingRatio(bottomP, mixingRatio);
         var bottomCoord = skewTCanvas.transform(bottomP, bottomT);
 
         var topP = skewTCanvas.plotConfig.pMax;
-        var topT = mixingRatio_tempC(topP, mixingRatio);
+        var topT = tempAtMixingRatio(topP, mixingRatio);
         var topCoord = skewTCanvas.transform(topP, topT);
 
         var path = getPath([bottomCoord, topCoord]);
@@ -117,7 +117,7 @@ var plotDryAdiabats = function (skewT) {
         thetas.push(theta);
     }
     var pressurePoints = [];
-    for (var p = skewTCanvas.plotConfig.pMin; p <= skewTCanvas.plotConfig.pMax; p += skewTCanvas.plotConfig.deltaPAdiabatPlot) {
+    for (var p = skewTCanvas.plotConfig.pMin; p <= skewTCanvas.plotConfig.pMax; p += skewTCanvas.plotConfig.deltaPAdiabat) {
         pressurePoints.push(p);
     }
     var g = createGroupElement('dryAdiabats', 'fill:none; stroke:orange; opacity:0.75; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
@@ -126,7 +126,7 @@ var plotDryAdiabats = function (skewT) {
     thetas.forEach(function (theta) {
         var coords = [];
         pressurePoints.forEach(function (p) {
-            var T = potentialTemp_tempC(p, theta);
+            var T = tempAtDryAdiabat(p, theta);
             var coord = skewTCanvas.transform(p, T);
             coords.push(coord);
         });
@@ -134,6 +134,43 @@ var plotDryAdiabats = function (skewT) {
         g.appendChild(path);
     });
 };
+
+// not done yet
+var plotMoistAdiabats = function (skewT) {
+    var g = createGroupElement('moistAdiabats', 'fill:none; stroke:green; opacity:0.75; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+    skewT.appendChild(g);
+
+    var hiP = skewTCanvas.plotConfig.pMax;
+    var lowP = skewTCanvas.plotConfig.pMin;
+    var dp = skewTCanvas.plotConfig.deltaP;
+
+    // for (var thetaW = skewTCanvas.plotConfig.thetaMax; thetaW >= skewTCanvas.plotConfig.thetaMin; thetaW -= skewTCanvas.plotConfig.deltaTheta) {
+    //     var moistAdiab = getMoistAdiabat(thetaW, hiP, lowP, dp);
+    //     g.appendChild(moistAdiab);
+    // }
+
+    var moistAdiab = getMoistAdiabat(10, hiP, lowP, dp);
+    g.appendChild(moistAdiab);
+};
+
+function getMoistAdiabat(thetaW, hiP, lowP, dp) {
+    var deltaMixRat = -1E-3;
+    var thetaW_K = temp_CtoK(thetaW);
+    var rs = satMixingRatio(hiP, thetaW);
+
+    var coords = [];
+    coords.push(skewTCanvas.transform(hiP, thetaW));
+    for (var p = hiP - dp; p >= lowP; p -= dp) {
+        var rs_next = rs + deltaMixRat;
+        var T_temp = thetaW_K - 2.5 * 10000 * deltaMixRat;
+        var T = lclT_from_r(temp_KtoC(T_temp), rs_next);
+        coords.push(skewTCanvas.transform(p, T));
+
+        thetaW_K = T;
+        rs = rs_next;
+    }
+    return getPath(coords);
+}
 
 function getWindBarb(windspd, winddir, coord) {
     var mainBarb = document.createElementNS(SVG_NS, 'path');
@@ -149,31 +186,12 @@ function getWindBarb(windspd, winddir, coord) {
     // draw barb to point north initially
     var barbEndCoord = {x: coord.x, y: coord.y - barbLength};
     parts.push(["L", barbEndCoord.x, barbEndCoord.y].join(" "));
-
-    // calculate number of 50kt-flags, 10kt-barbs, 5kt-barbs
-    var left = windspd;
-    var fiftyKtFlags = 0;
-    var tenKtBarbs = 0;
-    var fiveKtBarbs = 0;
-    while (left >= 50) {
-        fiftyKtFlags++;
-        left -= 50;
-    }
-    while (left >= 10) {
-        tenKtBarbs++;
-        left -= 10;
-    }
-    while (left >= 5) {
-        fiveKtBarbs++;
-        left -= 5;
-    }
     var currentPosition = barbEndCoord;
-
-    // related to filling in the flags. Don't fill initially
-    mainBarb.style.fill = 'none';
+    mainBarb.style.fill = 'none';   // related to filling in the flags. Don't fill initially
+    var left = windspd;
 
     // draw the 50kt barbs, if applicable
-    for (var i = 0; i < fiftyKtFlags; i++) {
+    while (left >= 50) {
         var triApex = {x: barbEndCoord.x + longBarbHeight, y: barbEndCoord.y + (flagWidth / 2)};
         var triEnd = {x: barbEndCoord.x, y: barbEndCoord.y + flagWidth};
         parts.push(["L", triApex.x, triApex.y].join(" "));
@@ -183,22 +201,25 @@ function getWindBarb(windspd, winddir, coord) {
 
         // do fill in flags if they exist.
         mainBarb.style.fill = 'black';
+        left -= 50;
     }
 
     // draw the 10kt barbs, if applicable
-    for (var i = 0; i < tenKtBarbs; i++) {
+    while (left >= 10) {
         var barbApex = {x: currentPosition.x + longBarbHeight, y: currentPosition.y};
         parts.push(["L", barbApex.x, barbApex.y].join(" "));
         currentPosition.y += barbSpacing;
         parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
+        left -= 10;
     }
 
     // draw the 5kt barbs, if applicable
-    for (var i = 0; i < fiveKtBarbs; i++) {
+    while (left >= 5) {
         var barbApex = {x: currentPosition.x + shortBarbHeight, y: currentPosition.y};
         parts.push(["L", barbApex.x, barbApex.y].join(" "));
         currentPosition.y += barbSpacing;
         parts.push(["M", currentPosition.x, currentPosition.y].join(" "));
+        left -= 5;
     }
 
     mainBarb.setAttribute('d', parts.join(" "));
