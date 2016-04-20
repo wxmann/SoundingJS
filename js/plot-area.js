@@ -19,18 +19,27 @@ var skewTCanvas = (function() {
         pMin: 100,
         pMax: 1050,
         deltaP: 50,
+
         // temperature
         tMin: -100,
         tMax: 40,
         deltaT: 10,
         skew: 0.9,
+
         // mixing ratios
         mixingRatios: [0.4, 1, 2, 4, 7, 10, 16, 24, 32, 40],
+
         // adiabats
         thetaMin: -30,
         thetaMax: 160,
         deltaTheta: 10,
-        deltaPAdiabat: 25
+        deltaPDryAdiabat: 25,
+
+        // moist adiabats
+        thetaWMin: -30,
+        thetaWMax: 60,
+        deltaThetaW: 10,
+        deltaPMoistAdiabat: 25
     };
 
     function pT_Transform(p, T) {

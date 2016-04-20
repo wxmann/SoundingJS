@@ -94,7 +94,7 @@ var plotPressures = function (skewT) {
 
 var plotMixingRatios = function (skewT) {
     var mixingRatios = skewTCanvas.plotConfig.mixingRatios;
-    var g = createGroupElement('mixingRatios', 'fill:none; stroke:pink; opacity:1; stroke-width: 1; stroke-dasharray: 10,5');
+    var g = createGroupElement('mixingRatios', 'fill:none; stroke:pink; opacity:1; stroke-width: 1.2; stroke-dasharray: 10,5');
     skewT.appendChild(g);
 
     mixingRatios.forEach(function(mixingRatio) {
@@ -117,10 +117,10 @@ var plotDryAdiabats = function (skewT) {
         thetas.push(theta);
     }
     var pressurePoints = [];
-    for (var p = skewTCanvas.plotConfig.pMin; p <= skewTCanvas.plotConfig.pMax; p += skewTCanvas.plotConfig.deltaPAdiabat) {
+    for (var p = skewTCanvas.plotConfig.pMin; p <= skewTCanvas.plotConfig.pMax; p += skewTCanvas.plotConfig.deltaPDryAdiabat) {
         pressurePoints.push(p);
     }
-    var g = createGroupElement('dryAdiabats', 'fill:none; stroke:orange; opacity:0.75; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+    var g = createGroupElement('dryAdiabats', 'fill:none; stroke:orange; opacity:0.8; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
     skewT.appendChild(g);
 
     thetas.forEach(function (theta) {
@@ -135,39 +135,29 @@ var plotDryAdiabats = function (skewT) {
     });
 };
 
-// not done yet
 var plotMoistAdiabats = function (skewT) {
-    var g = createGroupElement('moistAdiabats', 'fill:none; stroke:green; opacity:0.75; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+    var g = createGroupElement('moistAdiabats', 'fill:none; stroke:green; opacity:0.5; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
     skewT.appendChild(g);
 
     var hiP = skewTCanvas.plotConfig.pMax;
     var lowP = skewTCanvas.plotConfig.pMin;
-    var dp = skewTCanvas.plotConfig.deltaP;
+    var dp = skewTCanvas.plotConfig.deltaPDryAdiabat;
 
-    // for (var thetaW = skewTCanvas.plotConfig.thetaMax; thetaW >= skewTCanvas.plotConfig.thetaMin; thetaW -= skewTCanvas.plotConfig.deltaTheta) {
-    //     var moistAdiab = getMoistAdiabat(thetaW, hiP, lowP, dp);
-    //     g.appendChild(moistAdiab);
-    // }
-
-    var moistAdiab = getMoistAdiabat(10, hiP, lowP, dp);
-    g.appendChild(moistAdiab);
+    var thetaWs = [];
+    for (var thetaW = skewTCanvas.plotConfig.thetaWMin; thetaW <= skewTCanvas.plotConfig.thetaWMax; thetaW += skewTCanvas.plotConfig.deltaThetaW) {
+        thetaWs.push(thetaW);
+    }
+    thetaWs.forEach(function (thetaW) {
+        var moistAdiab = getMoistAdiabat(thetaW, hiP, lowP, dp);
+        g.appendChild(moistAdiab);
+    });
 };
 
 function getMoistAdiabat(thetaW, hiP, lowP, dp) {
-    var deltaMixRat = -1E-3;
-    var thetaW_K = temp_CtoK(thetaW);
-    var rs = satMixingRatio(hiP, thetaW);
-
     var coords = [];
-    coords.push(skewTCanvas.transform(hiP, thetaW));
-    for (var p = hiP - dp; p >= lowP; p -= dp) {
-        var rs_next = rs + deltaMixRat;
-        var T_temp = thetaW_K - 2.5 * 10000 * deltaMixRat;
-        var T = lclT_from_r(temp_KtoC(T_temp), rs_next);
+    for (var p = hiP; p >= lowP; p -= dp) {
+        var T = tempAtMoistAdiabat(p, thetaW);
         coords.push(skewTCanvas.transform(p, T));
-
-        thetaW_K = T;
-        rs = rs_next;
     }
     return getPath(coords);
 }
