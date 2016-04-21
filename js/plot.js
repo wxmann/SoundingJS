@@ -14,16 +14,16 @@ var plotSkewTBoundary = function(skewT) {
     skewT.appendChild(rect);
 };
 
-var plotTempTrace = function(profile, skewT) {
-    var trace = traces.temperature(profile);
+var plotTempTrace = function(skewT) {
+    var trace = saved.soundingTraces().temperature;
     var style = "fill:none; stroke:red; stroke-width: 3";
     var id = 'tempTrace';
     var elem = getTraceElement(trace, id, style);
     skewT.appendChild(elem);
 };
 
-var plotDewptTrace = function (profile, skewT) {
-    var trace = traces.dewpoint(profile);
+var plotDewptTrace = function (skewT) {
+    var trace = saved.soundingTraces().dewpoint;
     var style = "fill:none; stroke:green; stroke-width: 3";
     var id = 'dewptTrace';
     var elem = getTraceElement(trace, id, style);
@@ -198,8 +198,8 @@ function getWindBarb(windspd, winddir, coord) {
     return mainBarb;
 }
 
-var plotWindBarbs = function (profile, windBarbLiner) {
-    var trace = traces.wind(profile);
+var plotWindBarbs = function (windBarbLiner) {
+    var trace = saved.soundingTraces().wind;
     var i = 0;
     var g = createGroupElement('windBarbs', 'stroke:black; opacity:1; stroke-width: 1');
     windBarbLiner.appendChild(g);
@@ -214,4 +214,12 @@ var plotWindBarbs = function (profile, windBarbLiner) {
         }
         i++;
     });
+};
+
+var plotSBParcel = function (skewT) {
+    var trace = saved.soundingTraces().parcel.sb;
+    var style = "fill:none; stroke:blue; stroke-width: 2";
+    var id = 'sbParcelTrace';
+    var elem = getTraceElement(trace, id, style);
+    skewT.appendChild(elem);
 };

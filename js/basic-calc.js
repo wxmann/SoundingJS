@@ -45,7 +45,7 @@ var satVaporPres = function(T) {
 
 var dryAdiabat = function(p, T) {
     var Tk = temp_CtoK(T);
-    var theta = Tk * Math.pow(pRef / p, 0.288);
+    var theta = Tk * Math.pow(pRef / p, poissonDry);
     return temp_KtoC(theta);
 };
 
@@ -56,17 +56,35 @@ var thetaE = function(p, T) {
     return temp_KtoC(thetaS);
 };
 
+var lcl = function (p, T, Td) {
+    var theta = dryAdiabat(p, T);  // theta is conserved in dry adiabatic ascent
+    var T_LCL = lclT_from_TTd(T, Td);
+    return {
+        p: presAtDryAdiabat(T_LCL, theta),
+        T: T_LCL
+    }
+};
+
 /**
- * LCL temperature (C) from environmental temperature and mixing ratio.
+ * LCL temperature (C) from environmental temperature and dewpoint.
+ * Adapted from Bolton (1980) eq. 15.
  *
  * @param T the environmental temperature in degrees Celsius.
- * @param r the environmental mixing ratio in g/kg
+ * @param Td the dewpoint temperature in degress Celsius.
  * @returns {number}
  */
-// var lclT_from_r = function(T, r) {
-//     var Tk = temp_CtoK(T);
-//     return temp_KtoC(2480 / (3.5 * Math.log(Tk) - Math.log(r) - 4.805) + 55);
-// };
+var lclT_from_TTd = function(T, Td) {
+    var Tk = temp_CtoK(T);
+    var Tdk = temp_CtoK(Td);
+    var denom = 1/(Tdk - 56) + Math.log(Tk/Tdk)/800;
+    return temp_KtoC(1/denom + 56);
+};
+
+var presAtDryAdiabat = function(T, theta) {
+    var Tk = temp_CtoK(T);
+    var theta_K = temp_CtoK(theta);
+    return pRef * Math.pow(Tk / theta_K, 1/poissonDry);
+};
 
 /**
  * Finds temperature at pressure level given saturation mixing ratio.

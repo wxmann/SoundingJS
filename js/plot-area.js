@@ -30,7 +30,7 @@ var skewTCanvas = (function() {
     var pSeq = seq(100, 1050, 50),
         tSeq = seq(-100, 40, 10),
         thetaSeq = seq(-30, 160, 10),
-        thetaWSeq = seq(-30, 60, 10);
+        thetaWSeq = seq(-20, 40, 5);
 
     var plotConfig = {
         // pressure

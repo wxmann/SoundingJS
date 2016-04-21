@@ -9,8 +9,8 @@
 	<script src="js/plot-area.js"></script>
 	<script src="js/load.js"></script>
 	<script src="js/accessors.js"></script>
-	<script src="js/plot.js"></script>
 	<script src="js/trace.js"></script>
+	<script src="js/plot.js"></script>
 	<script src="js/basic-calc.js"></script>
 	<script src="test/dummysounding.js"></script>
 </head>
@@ -49,8 +49,6 @@
 	<script>
 		function getSounding() {}
 		loadSounding("KOUN", 1999, 5, 3, 12);
-		var theSounding = saved.getSounding();
-		var profile = properties(theSounding).profile;
 
 		var skewT = document.getElementById('skewT');
 		skewT.setAttribute('x', skewTCanvas.dimensions.dx.toString());
@@ -63,15 +61,16 @@
 		plotMixingRatios(skewT);
 		plotDryAdiabats(skewT);
 		plotMoistAdiabats(skewT);
-		plotTempTrace(profile, skewT);
-		plotDewptTrace(profile, skewT);
+		plotTempTrace(skewT);
+		plotDewptTrace(skewT);
+		plotSBParcel(skewT);
 
 		var windBarbLiner = document.getElementById('windBarbLiner');
 		windBarbLiner.setAttribute('x', windBarbCanvas.dimensions.dx.toString());
 		windBarbLiner.setAttribute('y', windBarbCanvas.dimensions.dy.toString());
 		windBarbLiner.setAttribute('width', windBarbCanvas.dimensions.width.toString());
 		windBarbLiner.setAttribute('height', windBarbCanvas.dimensions.height.toString());
-		plotWindBarbs(profile, windBarbLiner);
+		plotWindBarbs(windBarbLiner);
 	</script>
 
 </body>
