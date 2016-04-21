@@ -45,7 +45,7 @@ function Trace() {
 }
 
 var traces = function(profile){
-    var all = allTraces();
+    var allObs = allTraces();
 
     function allTraces() {
         var trace = new Trace();
@@ -59,46 +59,17 @@ var traces = function(profile){
         return trace;
     }
 
-    function extract(extractionFn) {
-        var trace = new Trace();
-        all.pressures.forEach(function (p) {
-            var val = extractionFn(all.getValue(p));
-            if (val != null) {
-                trace.addValue(p, val);
-            }
-        });
-        return trace;
-    }
-
-    function getSBParcel() {
-        var traceTTd = extract(function(point) {
-            var T = fields.temperature(point);
-            var Td = fields.dewpoint(point);
-            if (T == null || Td == null) {
-                return null;
-            } else {
-                return {
-                    T: T,
-                    Td: Td
-                }
-            }
-        });
-        var sfc = {
-            p: traceTTd.sfcPressure(),
-            T: traceTTd.sfcValue().T,
-            Td: traceTTd.sfcValue().Td
-        };
-        var LCL = lcl(sfc.p, sfc.T, sfc.Td);
-
+    function getParcel(sourceOb) {
+        var LCL = lcl(sourceOb.p, sourceOb.T, sourceOb.Td);
         var parcelTrace = new Trace();
-        parcelTrace.addValue(sfc.p, sfc.T);
+        parcelTrace.addValue(sourceOb.p, sourceOb.T);
         parcelTrace.addValue(LCL.p, LCL.T);
-        var thetaFromSfc = dryAdiabat(sfc.p, sfc.T);
+        var thetaFromSfc = dryAdiabat(sourceOb.p, sourceOb.T);
         var thetaEAboveLCL = thetaE(LCL.p, LCL.T);
 
         // generate trace for points every 25mb
         // do not hit 0mb, I wouldn't doubt some funky behavior there
-        for (var p = sfc.p - 25; p >= 25; p -= 25) {
+        for (var p = sourceOb.p - 25; p >= 25; p -= 25) {
             var parcelTemp;
             if (p > LCL.p) {
                 parcelTemp = tempAtDryAdiabat(p, thetaFromSfc);
@@ -111,14 +82,14 @@ var traces = function(profile){
     }
 
     var parcel = {
-        sb: getSBParcel()
+        sb: getParcel(parcelSources.surface(allObs))
     };
 
     return {
-        allFields: all,
-        temperature: extract(fields.temperature),
-        dewpoint: extract(fields.dewpoint),
-        wind: extract(function(point) {
+        allFields: allObs,
+        temperature: extract(allObs, fields.temperature),
+        dewpoint: extract(allObs, fields.dewpoint),
+        wind: extract(allObs, function(point) {
             var windDir = fields.winddirection(point);
             var windSpeed = fields.windspeed(point);
             if (windDir == null || windSpeed == null) {
@@ -133,3 +104,37 @@ var traces = function(profile){
         parcel: parcel
     }
 };
+
+function extract(globalTrace, extractionFn) {
+    var trace = new Trace();
+    globalTrace.pressures.forEach(function (p) {
+        var val = extractionFn(globalTrace.getValue(p));
+        if (val != null) {
+            trace.addValue(p, val);
+        }
+    });
+    return trace;
+}
+
+var parcelSources = (function () {
+    var getSb = function (globalTrace) {
+        var traceTTd = extract(globalTrace, function (point) {
+            var T = fields.temperature(point);
+            var Td = fields.dewpoint(point);
+            if (T == null || Td == null) {
+                return null;
+            } else {
+                return {T: T, Td: Td}
+            }
+        });
+        return {
+            p: traceTTd.sfcPressure(),
+            T: traceTTd.sfcValue().T,
+            Td: traceTTd.sfcValue().Td
+        };
+    };
+
+    return {
+        surface: getSb
+    }
+})();
