@@ -8,32 +8,10 @@ var seq = function(minVal, maxVal, delta) {
         arr.push(val);
     }
 
-    // function subSeq(start, until, interval) {
-    //     var i = 0;
-    //     while (i < arr.length && arr[i++] != start);
-    //     if (i >= arr.length) {
-    //         return [];
-    //     } else {
-    //         var k = 0;
-    //         var returnedArr = [];
-    //         for (var j = i - 1; j < arr.length; j++) {
-    //             if (arr[j] > until) {
-    //                 break;
-    //             }
-    //             if (k % interval == 0) {
-    //                 returnedArr.push(arr[j]);
-    //             }
-    //             k++;
-    //         }
-    //         return returnedArr;
-    //     }
-    // }
-
     return {
         min: minVal,
         max: maxVal,
-        values: arr,
-        // subSeq: subSeq
+        values: arr
     }
 };
 

@@ -73,6 +73,8 @@
 		var labels = document.getElementById('skewTLabels');
 		var labelWidth = skewTCanvas.dimensions.dx + skewTCanvas.dimensions.width;
 		var labelHeight = 1200;
+		labels.setAttribute('x', '0');
+		labels.setAttribute('y', skewTCanvas.dimensions.dy.toString());
 		labels.setAttribute('width', labelWidth.toString());
 		labels.setAttribute('height', labelHeight.toString());
 		plotPressureLabels(labels);

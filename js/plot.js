@@ -230,12 +230,12 @@ var plotPressureLabels = function(labelCanvas) {
     g.setAttribute('text-anchor', 'end');
     labelCanvas.appendChild(g);
 
-    var title = getTextElement('P (mb)', skewTCanvas.dimensions.dx, skewTCanvas.dimensions.dy);
+    var title = getTextElement('P (mb)', skewTCanvas.dimensions.dx, 0);
     g.appendChild(title);
     title.setAttribute('alignment-baseline', 'text-before-edge');
 
     skewTCanvas.labels.pressures.forEach(function (p) {
-        var y = skewTCanvas.transform(p, 0).y + skewTCanvas.dimensions.dy;
+        var y = skewTCanvas.transform(p, 0).y;
         var x = skewTCanvas.dimensions.dx;
         var textElem = getTextElement(p, x, y);
         textElem.setAttribute('alignment-baseline', 'middle');
@@ -249,15 +249,15 @@ var plotTempLabels = function(labelCanvas) {
     labelCanvas.appendChild(g);
 
     var title = getTextElement('T (°C)',
-        skewTCanvas.dimensions.width + skewTCanvas.dimensions.dx, skewTCanvas.dimensions.height + skewTCanvas.dimensions.dy);
+        skewTCanvas.dimensions.width + skewTCanvas.dimensions.dx, skewTCanvas.dimensions.height);
     title.setAttribute('text-anchor', 'end');
     g.appendChild(title);
 
     skewTCanvas.labels.temperatures.forEach(function (T) {
         var maxP = skewTCanvas.plotConfig.pMax;
         var coords = skewTCanvas.transform(maxP, T);
-        var y = coords.y + skewTCanvas.dimensions.dy;
-        var x = coords.x - skewTCanvas.dimensions.dx;
+        var y = coords.y;
+        var x = coords.x + skewTCanvas.dimensions.dx;
         var textElem = getTextElement(T, x, y);
         g.appendChild(textElem);
     });
