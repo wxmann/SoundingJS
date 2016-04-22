@@ -223,3 +223,50 @@ var plotSBParcel = function (skewT) {
     var elem = getTraceElement(trace, id, style);
     skewT.appendChild(elem);
 };
+
+var plotPressureLabels = function(labelCanvas) {
+    var g = createGroupElement('pLabels');
+    g.setAttribute('transform', 'translate(-' + skewTCanvas.labels.padding + ',0)');
+    g.setAttribute('text-anchor', 'end');
+    labelCanvas.appendChild(g);
+
+    var title = getTextElement('P (mb)', skewTCanvas.dimensions.dx, skewTCanvas.dimensions.dy);
+    g.appendChild(title);
+    title.setAttribute('alignment-baseline', 'text-before-edge');
+
+    skewTCanvas.labels.pressures.forEach(function (p) {
+        var y = skewTCanvas.transform(p, 0).y + skewTCanvas.dimensions.dy;
+        var x = skewTCanvas.dimensions.dx;
+        var textElem = getTextElement(p, x, y);
+        textElem.setAttribute('alignment-baseline', 'middle');
+        g.appendChild(textElem);
+    });
+};
+
+var plotTempLabels = function(labelCanvas) {
+    var g = createGroupElement('pLabels');
+    g.setAttribute('transform', 'translate(0,20)');
+    labelCanvas.appendChild(g);
+
+    var title = getTextElement('T (°C)',
+        skewTCanvas.dimensions.width + skewTCanvas.dimensions.dx, skewTCanvas.dimensions.height + skewTCanvas.dimensions.dy);
+    title.setAttribute('text-anchor', 'end');
+    g.appendChild(title);
+
+    skewTCanvas.labels.temperatures.forEach(function (T) {
+        var maxP = skewTCanvas.plotConfig.pMax;
+        var coords = skewTCanvas.transform(maxP, T);
+        var y = coords.y + skewTCanvas.dimensions.dy;
+        var x = coords.x - skewTCanvas.dimensions.dx;
+        var textElem = getTextElement(T, x, y);
+        g.appendChild(textElem);
+    });
+};
+
+function getTextElement(level, x, y) {
+    var textElem = document.createElementNS(SVG_NS, 'text');
+    textElem.innerHTML = level.toString();
+    textElem.setAttribute('x', x.toString());
+    textElem.setAttribute('y', y.toString());
+    return textElem;
+}

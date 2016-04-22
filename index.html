@@ -40,7 +40,8 @@
 		</form>
 	</div>
 
-	<svg id="container" width="1200" height="1200" xmlns="http://www.w3.org/2000/svg">
+	<svg id="container">
+		<svg id="skewTLabels"></svg>
 		<svg id="skewT"></svg>
 		<svg id="windBarbLiner"></svg>
 	</svg>
@@ -49,6 +50,10 @@
 	<script>
 		function getSounding() {}
 		loadSounding("KOUN", 1999, 5, 3, 12);
+
+		var container = document.getElementById('container');
+		container.setAttribute('width', '1200');
+		container.setAttribute('height', '1000');
 
 		var skewT = document.getElementById('skewT');
 		skewT.setAttribute('x', skewTCanvas.dimensions.dx.toString());
@@ -64,6 +69,14 @@
 		plotTempTrace(skewT);
 		plotDewptTrace(skewT);
 		plotSBParcel(skewT);
+
+		var labels = document.getElementById('skewTLabels');
+		var labelWidth = skewTCanvas.dimensions.dx + skewTCanvas.dimensions.width;
+		var labelHeight = 1200;
+		labels.setAttribute('width', labelWidth.toString());
+		labels.setAttribute('height', labelHeight.toString());
+		plotPressureLabels(labels);
+		plotTempLabels(labels);
 
 		var windBarbLiner = document.getElementById('windBarbLiner');
 		windBarbLiner.setAttribute('x', windBarbCanvas.dimensions.dx.toString());

@@ -2,29 +2,47 @@
  * Created by tangz on 4/15/2016.
  */
 
-var baseHeight = 800;
-var skewTAspectRatio = 1;
-var padding = 20;
-
 var seq = function(minVal, maxVal, delta) {
     var arr = [];
     for (var val = minVal; val <= maxVal; val += delta) {
         arr.push(val);
     }
 
+    // function subSeq(start, until, interval) {
+    //     var i = 0;
+    //     while (i < arr.length && arr[i++] != start);
+    //     if (i >= arr.length) {
+    //         return [];
+    //     } else {
+    //         var k = 0;
+    //         var returnedArr = [];
+    //         for (var j = i - 1; j < arr.length; j++) {
+    //             if (arr[j] > until) {
+    //                 break;
+    //             }
+    //             if (k % interval == 0) {
+    //                 returnedArr.push(arr[j]);
+    //             }
+    //             k++;
+    //         }
+    //         return returnedArr;
+    //     }
+    // }
+
     return {
         min: minVal,
         max: maxVal,
-        values: arr
+        values: arr,
+        // subSeq: subSeq
     }
 };
 
 var skewTCanvas = (function() {
     var dimensions = {
-        height: baseHeight,
-        width: skewTAspectRatio * baseHeight,
-        dx: padding,
-        dy: padding
+        height: 800,
+        width: 800,
+        dx: 60,
+        dy: 40
     };
 
     var pSeq = seq(100, 1050, 50),
@@ -58,6 +76,12 @@ var skewTCanvas = (function() {
         thetaWMax: thetaSeq.max
     };
 
+    var labels = {
+        pressures: seq(200, 1000, 100).values,
+        temperatures: seq(-40, 40, 10).values,
+        padding: 10
+    };
+
     function pT_Transform(p, T) {
         var pMin = plotConfig.pMin;
         var pMax = plotConfig.pMax;
@@ -82,22 +106,24 @@ var skewTCanvas = (function() {
                 x: relCoordinates.relX * dimensions.width,
                 y: relCoordinates.relY * dimensions.height
             }
-        }
+        },
+        labels: labels
     }
 })();
 
 var windBarbCanvas = (function () {
-    var thisWidth = 100;
+    var baseWidth = 100;
+    var skewTDim = skewTCanvas.dimensions;
     var dimensions = {
-        height: 1.5 * baseHeight,
-        width: thisWidth,
-        dx: skewTAspectRatio * baseHeight + padding,
-        dy: padding
+        height: 1.5 * skewTDim.height,
+        width: baseWidth,
+        dx: skewTDim.width + skewTDim.dx,
+        dy: skewTDim.dy
     };
 
     var barbLengthBase = 36;
     var barbConfig = {
-        barbLength: thisWidth / 2.5,
+        barbLength: baseWidth / 2.5,
         longBarbHeight: barbLengthBase / 3,
         shortBarbHeight: barbLengthBase / 6,
         flagWidth: barbLengthBase / 6,
@@ -108,5 +134,5 @@ var windBarbCanvas = (function () {
     return {
         dimensions: dimensions,
         barbConfig: barbConfig
-    };
+    }
 })();
