@@ -52,40 +52,18 @@
 		loadSounding("KOUN", 1999, 5, 3, 12);
 
 		var container = document.getElementById('container');
-		container.setAttribute('width', '1200');
-		container.setAttribute('height', '1000');
+		container.setAttribute('width', Dimensions.containerWidth);
+		container.setAttribute('height', Dimensions.containerHeight);
 
 		var skewT = document.getElementById('skewT');
-		skewT.setAttribute('x', skewTCanvas.dimensions.dx.toString());
-		skewT.setAttribute('y', skewTCanvas.dimensions.dy.toString());
-		skewT.setAttribute('width', skewTCanvas.dimensions.width.toString());
-		skewT.setAttribute('height', skewTCanvas.dimensions.height.toString());
-		plotSkewTBoundary(skewT);
-		plotPressures(skewT);
-		plotIsotherms(skewT);
-		plotMixingRatios(skewT);
-		plotDryAdiabats(skewT);
-		plotMoistAdiabats(skewT);
-		plotTempTrace(skewT);
-		plotDewptTrace(skewT);
-		plotSBParcel(skewT);
-
 		var labels = document.getElementById('skewTLabels');
-		var labelWidth = skewTCanvas.dimensions.dx + skewTCanvas.dimensions.width;
-		var labelHeight = 1200;
-		labels.setAttribute('x', '0');
-		labels.setAttribute('y', skewTCanvas.dimensions.dy.toString());
-		labels.setAttribute('width', labelWidth.toString());
-		labels.setAttribute('height', labelHeight.toString());
-		plotPressureLabels(labels);
-		plotTempLabels(labels);
-
 		var windBarbLiner = document.getElementById('windBarbLiner');
-		windBarbLiner.setAttribute('x', windBarbCanvas.dimensions.dx.toString());
-		windBarbLiner.setAttribute('y', windBarbCanvas.dimensions.dy.toString());
-		windBarbLiner.setAttribute('width', windBarbCanvas.dimensions.width.toString());
-		windBarbLiner.setAttribute('height', windBarbCanvas.dimensions.height.toString());
-		plotWindBarbs(windBarbLiner);
+
+		SkewTPlotter.plotSkewTOutline(skewT);
+		SkewTPlotter.plotSkewTLabels(labels);
+		SkewTPlotter.plotSoundingData(skewT);
+		SkewTPlotter.plotWindBarbs(windBarbLiner);
+
 	</script>
 
 </body>

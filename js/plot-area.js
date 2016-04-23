@@ -15,20 +15,49 @@ var seq = function(minVal, maxVal, delta) {
     }
 };
 
-var skewTCanvas = (function() {
-    var dimensions = {
-        height: 800,
-        width: 800,
-        dx: 60,
-        dy: 40
+var Dimensions = (function () {
+    var upperPadding = 40;
+
+    var skewTLabel = {
+        width: 50,
+        height:50
     };
 
+    var skewTArea = {
+        width: 800,
+        height: 800
+    };
+
+    var skewTWindBarbs = {
+        width: 100,
+        height: skewTArea.height + skewTLabel.height
+    };
+
+    return {
+        skewTLabel: skewTLabel,
+        skewTArea: skewTArea,
+        skewTWindBarbs: skewTWindBarbs,
+        upperPadding: upperPadding,
+
+        containerWidth: skewTLabel.width + skewTArea.width + skewTWindBarbs.width,
+        containerHeight: Math.max(skewTLabel.height, skewTArea.height, skewTWindBarbs.height) + upperPadding
+    }
+})();
+
+
+var SkewTPlotConfig = (function () {
     var pSeq = seq(100, 1050, 50),
         tSeq = seq(-100, 40, 10),
         thetaSeq = seq(-30, 160, 10),
         thetaWSeq = seq(-20, 40, 5);
 
-    var plotConfig = {
+    var labels = {
+        pressures: seq(100, 1000, 100).values,
+        temperatures: seq(-40, 40, 10).values,
+        padding: 10
+    };
+
+    return {
         // pressure
         isobars: pSeq.values,
         pMin: pSeq.min,
@@ -51,22 +80,35 @@ var skewTCanvas = (function() {
         // moist adiabats
         moistAdiabats: thetaWSeq.values,
         thetaWMin: thetaSeq.min,
-        thetaWMax: thetaSeq.max
-    };
+        thetaWMax: thetaSeq.max,
 
-    var labels = {
-        pressures: seq(200, 1000, 100).values,
-        temperatures: seq(-40, 40, 10).values,
-        padding: 10
-    };
+        labels: labels
+    }
+})();
 
+var WindBarbConfig = (function (dim) {
+    var barbLengthBase = dim.width / 2.75;
+    var barbConfig = {
+        barbLength: barbLengthBase,
+        longBarbHeight: barbLengthBase / 3,
+        shortBarbHeight: barbLengthBase / 6,
+        flagWidth: barbLengthBase / 6,
+        barbSpacing: barbLengthBase / 8,
+        deltaBarb: 3
+    };
+    return barbConfig;
+    
+})(Dimensions.skewTWindBarbs);
+
+
+var Transformer = (function (dim, skewTConfig) {
     function pT_Transform(p, T) {
-        var pMin = plotConfig.pMin;
-        var pMax = plotConfig.pMax;
-        var tMin = plotConfig.tMin;
-        var tMax = plotConfig.tMax;
-        var m = plotConfig.skew;
-        var hwRatio = dimensions.height / dimensions.width;
+        var pMin = skewTConfig.pMin;
+        var pMax = skewTConfig.pMax;
+        var tMin = skewTConfig.tMin;
+        var tMax = skewTConfig.tMax;
+        var m = skewTConfig.skew;
+        var hwRatio = dim.height / dim.width;
 
         var relY = Math.log(p / pMin) / Math.log(pMax / pMin);
         var relX = ((T - tMin) / (tMax - tMin)) * (1 + hwRatio) - hwRatio + hwRatio * (1 - relY) / m;
@@ -75,42 +117,14 @@ var skewTCanvas = (function() {
             relY: relY
         }
     }
+
     return {
-        dimensions: dimensions,
-        plotConfig: plotConfig,
-        transform: function(p, T) {
+        toSkewTCoord: function (p, T) {
             var relCoordinates = pT_Transform(p, T);
             return {
-                x: relCoordinates.relX * dimensions.width,
-                y: relCoordinates.relY * dimensions.height
+                x: relCoordinates.relX * dim.width,
+                y: relCoordinates.relY * dim.height
             }
-        },
-        labels: labels
+        }
     }
-})();
-
-var windBarbCanvas = (function () {
-    var baseWidth = 100;
-    var skewTDim = skewTCanvas.dimensions;
-    var dimensions = {
-        height: 1.5 * skewTDim.height,
-        width: baseWidth,
-        dx: skewTDim.width + skewTDim.dx,
-        dy: skewTDim.dy
-    };
-
-    var barbLengthBase = 36;
-    var barbConfig = {
-        barbLength: baseWidth / 2.5,
-        longBarbHeight: barbLengthBase / 3,
-        shortBarbHeight: barbLengthBase / 6,
-        flagWidth: barbLengthBase / 6,
-        barbSpacing: barbLengthBase / 8,
-        deltaBarb: 3
-    };
-
-    return {
-        dimensions: dimensions,
-        barbConfig: barbConfig
-    }
-})();
+})(Dimensions.skewTArea, SkewTPlotConfig);
