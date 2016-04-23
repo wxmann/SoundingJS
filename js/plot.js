@@ -41,16 +41,24 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     function getTraceElement(trace, id) {
+        var g = createGroupElement(id);
         var coords = [];
         trace.pressures.forEach(function(pres) {
             var T = trace.getValue(pres);
             var p = Number(pres);
             var coord = transform.toSkewTCoord(p, T);
             coords.push(coord);
+
+            var circ = document.createElementNS(SVG_NS, 'circle');
+            circ.setAttribute('cx', coord.x.toString());
+            circ.setAttribute('cy', coord.y.toString());
+            circ.setAttribute('r', '3');
+            circ.style.opacity = '0';
+            g.appendChild(circ);
         });
         var path = getPath(coords);
-        path.id = id;
-        return path;
+        g.appendChild(path);
+        return g;
     }
 
     function getPath(coords) {
@@ -60,6 +68,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
             allpoints.push([coord.x, coord.y].toString());
         });
         line.setAttribute('points', allpoints.join(" "));
+        line.style.fill = 'none';
         return line;
     }
 
