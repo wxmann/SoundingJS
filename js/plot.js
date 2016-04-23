@@ -4,10 +4,25 @@
 
 var SVG_NS = 'http://www.w3.org/2000/svg';
 
+var Elements = {
+    SKEW_T_BOUNDARY: "skewTBoundary",
+    TEMP_TRACE: "tempTrace",
+    DEWPT_TRACE: "dewptTrace",
+    SB_PARCEL_TRACE: "sbParcelTrace",
+    ISOTHERMS: "isotherms",
+    ISOBARS: "isobars",
+    MIXING_RATIOS: "mixingRatios",
+    DRY_ADIABATS: "dryAdiabats",
+    MOIST_ADIABATS: "moistAdiabats",
+    WIND_BARBS: "windBarbs",
+    ISOBAR_LABELS: "pLabels",
+    ISOTHERM_LABELS: "tLables"
+};
+
 var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     var plotSkewTBoundary = function(skewT) {
         var rect = document.createElementNS(SVG_NS, 'rect');
-        rect.setAttribute('style', 'fill:none; stroke:black; stroke-width: 1');
+        rect.id = Elements.SKEW_T_BOUNDARY;
         rect.setAttribute('height', dim.skewTArea.height.toString());
         rect.setAttribute('width', dim.skewTArea.width.toString());
         skewT.appendChild(rect);
@@ -15,21 +30,17 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotTempTrace = function(skewT) {
         var trace = saved.soundingTraces().temperature;
-        var style = "fill:none; stroke:red; stroke-width: 3";
-        var id = 'tempTrace';
-        var elem = getTraceElement(trace, id, style);
+        var elem = getTraceElement(trace, Elements.TEMP_TRACE);
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
         var trace = saved.soundingTraces().dewpoint;
-        var style = "fill:none; stroke:green; stroke-width: 3";
-        var id = 'dewptTrace';
-        var elem = getTraceElement(trace, id, style);
+        var elem = getTraceElement(trace, Elements.DEWPT_TRACE);
         skewT.appendChild(elem);
     };
 
-    function getTraceElement(trace, id, style) {
+    function getTraceElement(trace, id) {
         var coords = [];
         trace.pressures.forEach(function(pres) {
             var T = trace.getValue(pres);
@@ -38,8 +49,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
             coords.push(coord);
         });
         var path = getPath(coords);
-        path.setAttribute('style', style);
-        path.setAttribute('id', id);
+        path.id = id;
         return path;
     }
 
@@ -53,15 +63,14 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         return line;
     }
 
-    function createGroupElement(id, style) {
+    function createGroupElement(id) {
         var groupElem = document.createElementNS(SVG_NS, 'g');
         groupElem.id = id;
-        groupElem.style = style;
         return groupElem;
     }
 
     var plotIsotherms = function(skewT) {
-        var g = createGroupElement('isotherms', 'fill:none; stroke:gray; opacity:0.7; stroke-width: 1');
+        var g = createGroupElement(Elements.ISOTHERMS);
         skewT.appendChild(g);
 
         skewTConfig.isotherms.forEach(function(T) {
@@ -73,7 +82,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotPressures = function (skewT) {
-        var g = createGroupElement('isobars', 'fill:none; stroke:gray; opacity:0.7; stroke-width: 1');
+        var g = createGroupElement(Elements.ISOBARS);
         skewT.appendChild(g);
 
         skewTConfig.isobars.forEach(function(p) {
@@ -85,7 +94,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotMixingRatios = function (skewT) {
-        var g = createGroupElement('mixingRatios', 'fill:none; stroke:pink; opacity:1; stroke-width: 1.2; stroke-dasharray: 10,5');
+        var g = createGroupElement(Elements.MIXING_RATIOS);
         skewT.appendChild(g);
 
         skewTConfig.mixingRatios.forEach(function(mixingRatio) {
@@ -103,7 +112,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotDryAdiabats = function (skewT) {
-        var g = createGroupElement('dryAdiabats', 'fill:none; stroke:orange; opacity:0.8; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+        var g = createGroupElement(Elements.DRY_ADIABATS);
         skewT.appendChild(g);
 
         skewTConfig.dryAdiabats.forEach(function (theta) {
@@ -122,7 +131,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotMoistAdiabats = function (skewT) {
-        var g = createGroupElement('moistAdiabats', 'fill:none; stroke:green; opacity:0.5; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10');
+        var g = createGroupElement(Elements.MOIST_ADIABATS);
         skewT.appendChild(g);
 
         skewTConfig.moistAdiabats.forEach(function (thetaW) {
@@ -200,7 +209,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     var plotWindBarbs = function (windBarbLiner) {
         var trace = saved.soundingTraces().wind;
         var i = 0;
-        var g = createGroupElement('windBarbs', 'stroke:black; opacity:1; stroke-width: 1');
+        var g = createGroupElement(Elements.WIND_BARBS);
         windBarbLiner.appendChild(g);
 
         trace.pressures.forEach(function (p) {
@@ -217,14 +226,12 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotSBParcel = function (skewT) {
         var trace = saved.soundingTraces().parcel.sb;
-        var style = "fill:none; stroke:blue; stroke-width: 2";
-        var id = 'sbParcelTrace';
-        var elem = getTraceElement(trace, id, style);
+        var elem = getTraceElement(trace, Elements.SB_PARCEL_TRACE);
         skewT.appendChild(elem);
     };
 
     var plotPressureLabels = function(labelCanvas) {
-        var g = createGroupElement('pLabels');
+        var g = createGroupElement(Elements.ISOBAR_LABELS);
         g.setAttribute('transform', 'translate(-10,0)');
         g.setAttribute('text-anchor', 'end');
         labelCanvas.appendChild(g);
@@ -241,7 +248,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotTempLabels = function(labelCanvas) {
-        var g = createGroupElement('tLabels');
+        var g = createGroupElement(Elements.ISOTHERM_LABELS);
         g.setAttribute('transform', 'translate(0,20)');
         g.setAttribute('text-anchor', 'middle');
         labelCanvas.appendChild(g);

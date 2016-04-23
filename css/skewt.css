@@ -1,0 +1,39 @@
+#skewTBoundary {
+    fill:none; stroke:black; stroke-width: 1
+}
+
+#tempTrace {
+    fill:none; stroke:red; stroke-width: 3
+}
+
+#dewptTrace {
+    fill:none; stroke:green; stroke-width: 3
+}
+
+#sbParcelTrace {
+    fill:none; stroke:blue; stroke-width: 2
+}
+
+#isotherms {
+    fill:none; stroke:gray; opacity:0.7; stroke-width: 1
+}
+
+#isobars {
+    fill:none; stroke:gray; opacity:0.7; stroke-width: 1
+}
+
+#mixingRatios {
+    fill:none; stroke:pink; opacity:1; stroke-width: 1.2; stroke-dasharray: 10,5
+}
+
+#dryAdiabats {
+    fill:none; stroke:orange; opacity:0.8; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10
+}
+
+#moistAdiabats {
+    fill:none; stroke:green; opacity:0.5; stroke-width: 1; stroke-dasharray: 20,10,5,5,5,10
+}
+
+#windBarbs {
+    stroke:black; opacity:1; stroke-width: 1
+}
