@@ -16,15 +16,50 @@ var Elements = {
     MOIST_ADIABATS: "moistAdiabats",
     WIND_BARBS: "windBarbs",
     ISOBAR_LABELS: "pLabels",
-    ISOTHERM_LABELS: "tLables"
+    ISOTHERM_LABELS: "tLables",
+
+    HODOGRAPH_BOUNDARY: "hodographBoundary",
+    WINDSPEED_RADII: "windRadii",
+    HODO_AXES: "hodoAxes",
+
+    classes: {
+        BOUNDARY: "bdy"
+    }
 };
+
+function createBoundaryRect(id, hgt, width) {
+    var rect = document.createElementNS(SVG_NS, 'rect');
+    rect.id = id;
+    rect.setAttribute('class', Elements.classes.BOUNDARY);
+    rect.setAttribute('height', hgt.toString());
+    rect.setAttribute('width', width.toString());
+    return rect;
+}
+
+function createGroupElement(id) {
+    var groupElem = document.createElementNS(SVG_NS, 'g');
+    groupElem.id = id;
+    return groupElem;
+}
+
+function getPath(coords) {
+    var allpoints = [];
+    var line = document.createElementNS(SVG_NS, 'polyline');
+    coords.forEach(function(coord) {
+        allpoints.push([coord.x, coord.y].toString());
+    });
+    line.setAttribute('points', allpoints.join(" "));
+    line.style.fill = 'none';
+    return line;
+}
+
+function addTranslation(elem, dx, dy) {
+    elem.setAttribute('transform', 'translate(' + [dx, dy].toString() + ')');
+}
 
 var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     var plotSkewTBoundary = function(skewT) {
-        var rect = document.createElementNS(SVG_NS, 'rect');
-        rect.id = Elements.SKEW_T_BOUNDARY;
-        rect.setAttribute('height', dim.skewTArea.height.toString());
-        rect.setAttribute('width', dim.skewTArea.width.toString());
+        var rect = createBoundaryRect(Elements.SKEW_T_BOUNDARY, dim.skewTArea.height, dim.skewTArea.width);
         skewT.appendChild(rect);
     };
 
@@ -59,23 +94,6 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         var path = getPath(coords);
         g.appendChild(path);
         return g;
-    }
-
-    function getPath(coords) {
-        var allpoints = [];
-        var line = document.createElementNS(SVG_NS, 'polyline');
-        coords.forEach(function(coord) {
-            allpoints.push([coord.x, coord.y].toString());
-        });
-        line.setAttribute('points', allpoints.join(" "));
-        line.style.fill = 'none';
-        return line;
-    }
-
-    function createGroupElement(id) {
-        var groupElem = document.createElementNS(SVG_NS, 'g');
-        groupElem.id = id;
-        return groupElem;
     }
 
     var plotIsotherms = function(skewT) {
@@ -241,7 +259,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotPressureLabels = function(labelCanvas) {
         var g = createGroupElement(Elements.ISOBAR_LABELS);
-        g.setAttribute('transform', 'translate(-10,0)');
+        addTranslation(g, -10, 0);
         g.setAttribute('text-anchor', 'end');
         labelCanvas.appendChild(g);
 
@@ -258,7 +276,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotTempLabels = function(labelCanvas) {
         var g = createGroupElement(Elements.ISOTHERM_LABELS);
-        g.setAttribute('transform', 'translate(0,20)');
+        addTranslation(g, 0, 20);
         g.setAttribute('text-anchor', 'middle');
         labelCanvas.appendChild(g);
 
@@ -284,17 +302,19 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     return {
         plotSkewTLabels: function (labelCanvas) {
-            var realWidth = dim.skewTLabel.width + dim.skewTArea.width + dim.skewTWindBarbs.width;
-            var realHght = dim.skewTLabel.height + dim.upperPadding + dim.skewTArea.height;
+            var realWidth = dim.skewTLabel.x + dim.skewTLabel.width + dim.skewTArea.width + dim.skewTWindBarbs.width;
+            var realHght = dim.skewTLabel.y + dim.skewTLabel.height + dim.upperPadding + dim.skewTArea.height;
             labelCanvas.setAttribute('width', realWidth.toString());
             labelCanvas.setAttribute('height', realHght.toString());
+            labelCanvas.setAttribute('x', dim.skewTLabel.x.toString());
+            labelCanvas.setAttribute('y', dim.skewTLabel.y.toString());
             plotPressureLabels(labelCanvas);
             plotTempLabels(labelCanvas);
         },
 
         plotSkewTOutline: function (skewTCanvas) {
-            skewTCanvas.setAttribute('x', dim.skewTLabel.width.toString());
-            skewTCanvas.setAttribute('y', dim.upperPadding.toString());
+            skewTCanvas.setAttribute('x', dim.skewTArea.x.toString());
+            skewTCanvas.setAttribute('y', dim.skewTArea.y.toString());
             skewTCanvas.setAttribute('width', dim.skewTArea.width.toString());
             skewTCanvas.setAttribute('height', dim.skewTArea.height.toString());
             plotSkewTBoundary(skewTCanvas);
@@ -306,9 +326,8 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         },
 
         plotWindBarbs: function(windBarbCanvas) {
-            var positionX = dim.skewTLabel.width + dim.skewTArea.width;
-            windBarbCanvas.setAttribute('x', positionX.toString());
-            windBarbCanvas.setAttribute('y', dim.upperPadding.toString());
+            windBarbCanvas.setAttribute('x', dim.skewTWindBarbs.x.toString());
+            windBarbCanvas.setAttribute('y', dim.skewTWindBarbs.y.toString());
             windBarbCanvas.setAttribute('width', dim.skewTWindBarbs.width.toString());
             windBarbCanvas.setAttribute('height', dim.skewTWindBarbs.height.toString());
             plotWindBarbs(windBarbCanvas);
@@ -324,4 +343,64 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 })(Dimensions, SkewTPlotConfig, WindBarbConfig, Transformer);
 
 
+var HodographPlotter = (function (dim, hodoConfig, transform) {
+    var cx = dim.hodographArea.width / 2;
+    var cy = dim.hodographArea.height / 2;
+
+    var plotHodographBoundary = function (hodog) {
+        var rect = createBoundaryRect(Elements.HODOGRAPH_BOUNDARY, dim.hodographArea.height, dim.hodographArea.width);
+        hodog.appendChild(rect);
+    };
+
+    function translateToCenter(elem) {
+        addTranslation(elem, cx, cy);
+    }
+    
+    var plotHodographRadii = function (hodog) {
+        // may have to move this to plot-config
+        var rMax = Math.sqrt(cx*cx + cy*cy);
+
+        var hodoRadii = createGroupElement(Elements.WINDSPEED_RADII);
+        translateToCenter(hodoRadii);
+        hodog.appendChild(hodoRadii);
+
+        hodoConfig.radii.forEach(function (v) {
+            var r = rMax * v / hodoConfig.vMax;
+            var circ = document.createElementNS(SVG_NS, 'circle');
+            circ.setAttribute('cx', '0');
+            circ.setAttribute('cy', '0');
+            circ.setAttribute('r', r);
+            hodoRadii.appendChild(circ);
+        });
+    };
+
+    var plotHodographAxes = function (hodog) {
+        var g = createGroupElement(Elements.HODO_AXES);
+        hodog.appendChild(g);
+        translateToCenter(g);
+
+        var yAxisPts = [
+            {x:0, y:cy}, {x:0, y:-cy}
+        ];
+        var xAxisPts = [
+            {x:-cx, y:0}, {x:cx, y:0}
+        ];
+        var yAxis = getPath(yAxisPts);
+        var xAxis = getPath(xAxisPts);
+        g.appendChild(yAxis);
+        g.appendChild(xAxis);
+    };
+
+    return {
+        plotHodographOutline: function (hodographCanvas) {
+            hodographCanvas.setAttribute('x', dim.hodographArea.x.toString());
+            hodographCanvas.setAttribute('y', dim.hodographArea.y.toString());
+            hodographCanvas.setAttribute('width', dim.hodographArea.width.toString());
+            hodographCanvas.setAttribute('height', dim.hodographArea.height.toString());
+            plotHodographBoundary(hodographCanvas);
+            plotHodographRadii(hodographCanvas);
+            plotHodographAxes(hodographCanvas);
+        }
+    }
+})(Dimensions, HodographPlotConfig, Transformer);
 

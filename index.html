@@ -41,10 +41,11 @@
 		</form>
 	</div>
 
-	<svg id="container">
+	<svg id="svgContainer">
 		<svg id="skewTLabels"></svg>
 		<svg id="skewT"></svg>
 		<svg id="windBarbLiner"></svg>
+		<svg id="hodograph"></svg>
 	</svg>
 
 
@@ -52,9 +53,10 @@
 		function getSounding() {}
 		loadSounding("KOUN", 1999, 5, 3, 12);
 
-		var container = document.getElementById('container');
-		container.setAttribute('width', Dimensions.containerWidth);
-		container.setAttribute('height', Dimensions.containerHeight);
+		// plot skewT
+		var svgContainer = document.getElementById('svgContainer');
+		svgContainer.setAttribute('width', Dimensions.containerWidth);
+		svgContainer.setAttribute('height', Dimensions.containerHeight);
 
 		var skewT = document.getElementById('skewT');
 		var labels = document.getElementById('skewTLabels');
@@ -67,6 +69,9 @@
 
 		addThermoListeners();
 
+		// plot hodograph
+		var hodograph = document.getElementById('hodograph');
+		HodographPlotter.plotHodographOutline(hodograph);
 	</script>
 
 </body>

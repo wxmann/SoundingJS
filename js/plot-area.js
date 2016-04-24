@@ -16,21 +16,35 @@ var seq = function(minVal, maxVal, delta) {
 };
 
 var Dimensions = (function () {
-    var upperPadding = 40;
+    var upperPadding = 40,
+        rightPadding = 10;
 
     var skewTLabel = {
+        x: 0,
+        y: 0,
         width: 50,
         height:50
     };
 
     var skewTArea = {
+        x: skewTLabel.x + skewTLabel.width,
+        y: upperPadding,
         width: 800,
         height: 800
     };
 
     var skewTWindBarbs = {
+        x: skewTArea.x + skewTArea.width,
+        y: upperPadding,
         width: 100,
         height: skewTArea.height + skewTLabel.height
+    };
+
+    var hodographArea = {
+        x: skewTWindBarbs.x + skewTWindBarbs.width,
+        y: upperPadding,
+        width: skewTArea.width / 1.25,
+        height: skewTArea.height / 1.25
     };
 
     return {
@@ -38,9 +52,10 @@ var Dimensions = (function () {
         skewTArea: skewTArea,
         skewTWindBarbs: skewTWindBarbs,
         upperPadding: upperPadding,
+        hodographArea: hodographArea,
 
-        containerWidth: skewTLabel.width + skewTArea.width + skewTWindBarbs.width,
-        containerHeight: Math.max(skewTLabel.height, skewTArea.height, skewTWindBarbs.height) + upperPadding
+        containerWidth: skewTLabel.width + skewTArea.width + skewTWindBarbs.width + hodographArea.width + rightPadding,
+        containerHeight: Math.max(skewTLabel.height, skewTArea.height, skewTWindBarbs.height, hodographArea.height) + upperPadding
     }
 })();
 
@@ -100,6 +115,15 @@ var WindBarbConfig = (function (dim) {
     
 })(Dimensions.skewTWindBarbs);
 
+
+var HodographPlotConfig = (function () {
+    var vSeq = seq(0, 100, 10);
+
+    return {
+        radii: vSeq.values,
+        vMax: vSeq.max
+    }
+})();
 
 var Transformer = (function (dim, skewTConfig) {
     function pT_Transform(p, T) {
