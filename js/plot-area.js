@@ -43,8 +43,8 @@ var Dimensions = (function () {
     var hodographArea = {
         x: skewTWindBarbs.x + skewTWindBarbs.width,
         y: upperPadding,
-        width: skewTArea.width / 1.25,
-        height: skewTArea.height / 1.25
+        width: skewTArea.width / 1.33,
+        height: skewTArea.height / 1.33
     };
 
     return {
@@ -117,7 +117,7 @@ var WindBarbConfig = (function (dim) {
 
 
 var HodographPlotConfig = (function () {
-    var vSeq = seq(0, 100, 10);
+    var vSeq = seq(0, 120, 10);
 
     return {
         radii: vSeq.values,
@@ -125,14 +125,14 @@ var HodographPlotConfig = (function () {
     }
 })();
 
-var Transformer = (function (dim, skewTConfig) {
+var Transformer = (function (dim, skewTConfig, hodoConfig) {
     function pT_Transform(p, T) {
         var pMin = skewTConfig.pMin;
         var pMax = skewTConfig.pMax;
         var tMin = skewTConfig.tMin;
         var tMax = skewTConfig.tMax;
         var m = skewTConfig.skew;
-        var hwRatio = dim.height / dim.width;
+        var hwRatio = dim.skewTArea.height / dim.skewTArea.width;
 
         var relY = Math.log(p / pMin) / Math.log(pMax / pMin);
         var relX = ((T - tMin) / (tMax - tMin)) * (1 + hwRatio) - hwRatio + hwRatio * (1 - relY) / m;
@@ -142,13 +142,33 @@ var Transformer = (function (dim, skewTConfig) {
         }
     }
 
+    function v_Transform(u, dir) {
+        var rRel = u / hodoConfig.vMax;
+        // convert cardinal direction to radians
+        var theta = (dir + 90) * (Math.PI / 180);
+        return {
+            relX: rRel * Math.cos(theta),
+            relY: rRel * Math.sin(theta)
+        }
+    }
+
     return {
         toSkewTCoord: function (p, T) {
             var relCoordinates = pT_Transform(p, T);
             return {
-                x: relCoordinates.relX * dim.width,
-                y: relCoordinates.relY * dim.height
+                x: relCoordinates.relX * dim.skewTArea.width,
+                y: relCoordinates.relY * dim.skewTArea.height
+            }
+        },
+
+        toHodographCoord: function (u, dir) {
+            var relCoordinates = v_Transform(u, dir);
+            var xMax = dim.hodographArea.width / 2;
+            var yMax = dim.hodographArea.height / 2;
+            return {
+                x: relCoordinates.relX * xMax,
+                y: relCoordinates.relY * yMax
             }
         }
     }
-})(Dimensions.skewTArea, SkewTPlotConfig);
+})(Dimensions, SkewTPlotConfig, HodographPlotConfig);

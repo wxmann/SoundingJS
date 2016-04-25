@@ -21,6 +21,7 @@ var Elements = {
     HODOGRAPH_BOUNDARY: "hodographBoundary",
     WINDSPEED_RADII: "windRadii",
     HODO_AXES: "hodoAxes",
+    HODOGRAPH_TRACE: "hodoTrace",
 
     classes: {
         BOUNDARY: "bdy"
@@ -57,44 +58,52 @@ function addTranslation(elem, dx, dy) {
     elem.setAttribute('transform', 'translate(' + [dx, dy].toString() + ')');
 }
 
+function getTraceElement(trace, id, getCoordAtP) {
+    var g = createGroupElement(id);
+    var coords = [];
+    trace.pressures.forEach(function(pres) {
+        var coord = getCoordAtP(pres);
+        coords.push(coord);
+
+        var circ = document.createElementNS(SVG_NS, 'circle');
+        circ.setAttribute('cx', coord.x.toString());
+        circ.setAttribute('cy', coord.y.toString());
+        circ.setAttribute('r', '3');
+        circ.style.opacity = '0';
+        g.appendChild(circ);
+    });
+    var path = getPath(coords);
+    g.appendChild(path);
+    return g;
+}
+
 var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     var plotSkewTBoundary = function(skewT) {
         var rect = createBoundaryRect(Elements.SKEW_T_BOUNDARY, dim.skewTArea.height, dim.skewTArea.width);
         skewT.appendChild(rect);
     };
 
+    function getCoordFromTrace(trace) {
+        var getCoordFromPres = function (pres) {
+            var T = trace.getValue(pres);
+            var p = Number(pres);
+            var coord = transform.toSkewTCoord(p, T);
+            return coord;
+        };
+        return getCoordFromPres;
+    }
+
     var plotTempTrace = function(skewT) {
         var trace = saved.soundingTraces().temperature;
-        var elem = getTraceElement(trace, Elements.TEMP_TRACE);
+        var elem = getTraceElement(trace, Elements.TEMP_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
         var trace = saved.soundingTraces().dewpoint;
-        var elem = getTraceElement(trace, Elements.DEWPT_TRACE);
+        var elem = getTraceElement(trace, Elements.DEWPT_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
-
-    function getTraceElement(trace, id) {
-        var g = createGroupElement(id);
-        var coords = [];
-        trace.pressures.forEach(function(pres) {
-            var T = trace.getValue(pres);
-            var p = Number(pres);
-            var coord = transform.toSkewTCoord(p, T);
-            coords.push(coord);
-
-            var circ = document.createElementNS(SVG_NS, 'circle');
-            circ.setAttribute('cx', coord.x.toString());
-            circ.setAttribute('cy', coord.y.toString());
-            circ.setAttribute('r', '3');
-            circ.style.opacity = '0';
-            g.appendChild(circ);
-        });
-        var path = getPath(coords);
-        g.appendChild(path);
-        return g;
-    }
 
     var plotIsotherms = function(skewT) {
         var g = createGroupElement(Elements.ISOTHERMS);
@@ -253,7 +262,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotSBParcel = function (skewT) {
         var trace = saved.soundingTraces().parcel.sb;
-        var elem = getTraceElement(trace, Elements.SB_PARCEL_TRACE);
+        var elem = getTraceElement(trace, Elements.SB_PARCEL_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
 
@@ -391,6 +400,18 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
         g.appendChild(xAxis);
     };
 
+    var plotWindTrace = function(hodog) {
+        var trace = saved.soundingTraces().wind;
+        var elem = getTraceElement(trace, Elements.HODOGRAPH_TRACE, function (p) {
+            var windPt = trace.getValue(p);
+            var windDir = windPt.dir;
+            var windSpd = windPt.speed;
+            return transform.toHodographCoord(windSpd, windDir);
+        });
+        translateToCenter(elem);
+        hodog.appendChild(elem);
+    };
+
     return {
         plotHodographOutline: function (hodographCanvas) {
             hodographCanvas.setAttribute('x', dim.hodographArea.x.toString());
@@ -400,6 +421,10 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
             plotHodographBoundary(hodographCanvas);
             plotHodographRadii(hodographCanvas);
             plotHodographAxes(hodographCanvas);
+        },
+
+        plotSoundingData: function(hodographCanvas) {
+            plotWindTrace(hodographCanvas);
         }
     }
 })(Dimensions, HodographPlotConfig, Transformer);

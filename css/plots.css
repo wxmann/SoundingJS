@@ -39,9 +39,13 @@
 }
 
 #windRadii {
-    fill:none; stroke:black; stroke-width: 1; opacity: 0.8; stroke-dasharray: 15,5
+    fill:none; stroke:gray; stroke-width: 1; opacity: 0.7; stroke-dasharray: 15,5
 }
 
 #hodoAxes {
-    fill:none; stroke:black; stroke-width: 1; opacity: 0.7;
+    fill:none; stroke:gray; stroke-width: 1; opacity: 0.7;
+}
+
+#hodoTrace {
+    stroke:purple; stroke-width: 3; opacity: 1.0
 }
