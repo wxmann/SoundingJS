@@ -9,7 +9,7 @@ var saved = (function() {
     return {
         setSounding: function(sounding) {
             _savedSounding = sounding;
-            _savedProfiles = traces(properties(_savedSounding).rawProfile);
+            _savedProfiles = profiles(_savedSounding);
         },
         getSounding: function() {
             return _savedSounding;

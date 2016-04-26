@@ -2,7 +2,7 @@
  * Created by tangz on 4/17/2016.
  */
 
-function Trace() {
+function Profile() {
     this.values = {};
     this.pressures = [];
 
@@ -21,35 +21,88 @@ function Trace() {
         }
     };
 
-    this.sfcPressure = function() {
-        // TODO: raise error if plot is empty.
-        var i = 0;
-        var val = this.getValue(this.pressures[i]);
-        while (val == null && i < this.pressures.length) {
-            i++;
-            val = this.getValue(this.pressures[i]);
-        }
-        return this.pressures[i];
-    };
+    this.iterator = function () {
+        var _this = this;
+        var savedIndex = 0;
+        var size = this.pressures.length;
 
-    this.sfcValue = function() {
-        // TODO: raise error if plot is empty.
-        var i = 0;
-        var val = this.getValue(this.pressures[i]);
-        while (val == null && i < this.pressures.length) {
-            i++;
-            val = this.getValue(this.pressures[i]);
+        function throwIfComodification() {
+            if (_this.pressures.length != size) {
+                throw "Internal error: comodification of profile";
+            }
         }
-        return val;
+
+        function indexOutOfBounds(i) {
+            return i >= size;
+        }
+
+        function throwIfInvalidIndex(i) {
+            if (i < 0) {
+                throw "Internal error, index < 0";
+            }
+            if (indexOutOfBounds(i)) {
+                throw "Internal error, iterator went past bounds: " + i + " > " + size;
+            }
+        }
+
+        function getFromIndex(i) {
+            if (size == 0) {
+                return null;
+            }
+            throwIfComodification();
+            throwIfInvalidIndex(i);
+            var p = _this.pressures[i];
+            return _this.getValue(p);
+        }
+
+        return {
+            first: function() {
+                return getFromIndex(0);
+            },
+
+            last: function () {
+                return getFromIndex(_this.pressures.length - 1);
+            },
+
+            hasNext: function () {
+                return !indexOutOfBounds(savedIndex);
+            },
+
+            hasPrevious: function () {
+                return savedIndex >= 0 && size > 0;
+            },
+
+            next: function () {
+                var val = getFromIndex(savedIndex);
+                savedIndex++;
+                return val;
+            },
+
+            previous: function () {
+                var val = getFromIndex(savedIndex);
+                savedIndex--;
+                return val;
+            },
+
+            resetToFirst: function () {
+                savedIndex = 0;
+                size = _this.pressures.length;
+            },
+
+            resetToLast: function () {
+                savedIndex = _this.pressures.length - 1;
+                size = _this.pressures.length;
+            }
+        }
     }
 }
 
-var traces = function(profile){
+var profiles = function(sounding){
     var allObs = allTraces();
 
     function allTraces() {
-        var trace = new Trace();
-        profile.forEach(function (point) {
+        var trace = new Profile();
+        properties(sounding).rawProfile.forEach(function (point) {
             var pressureVal = fields.pressure(point);
             var allvals = point;
             if (pressureVal != null) {
@@ -61,7 +114,7 @@ var traces = function(profile){
 
     function getParcel(sourceOb) {
         var LCL = lcl(sourceOb.p, sourceOb.T, sourceOb.Td);
-        var parcelTrace = new Trace();
+        var parcelTrace = new Profile();
         parcelTrace.addValue(sourceOb.p, sourceOb.T);
         parcelTrace.addValue(LCL.p, LCL.T);
         var thetaFromSfc = dryAdiabat(sourceOb.p, sourceOb.T);
@@ -105,33 +158,30 @@ var traces = function(profile){
     }
 };
 
-function extract(globalTrace, extractionFn) {
-    var trace = new Trace();
-    globalTrace.pressures.forEach(function (p) {
-        var val = extractionFn(globalTrace.getValue(p));
+function extract(allFields, extractionFn) {
+    var profile = new Profile();
+    allFields.pressures.forEach(function (p) {
+        var val = extractionFn(allFields.getValue(p));
         if (val != null) {
-            trace.addValue(p, val);
+            profile.addValue(p, val);
         }
     });
-    return trace;
+    return profile;
 }
 
 var parcelSources = (function () {
-    var getSb = function (globalTrace) {
-        var traceTTd = extract(globalTrace, function (point) {
+    var getSb = function (allFields) {
+        var TTdProfile = extract(allFields, function (point) {
+            var p = fields.pressure(point);
             var T = fields.temperature(point);
             var Td = fields.dewpoint(point);
-            if (T == null || Td == null) {
+            if (p == null || T == null || Td == null) {
                 return null;
             } else {
-                return {T: T, Td: Td}
+                return {p: p, T: T, Td: Td}
             }
         });
-        return {
-            p: traceTTd.sfcPressure(),
-            T: traceTTd.sfcValue().T,
-            Td: traceTTd.sfcValue().Td
-        };
+        return TTdProfile.iterator().first();
     };
 
     return {
