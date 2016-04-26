@@ -17,14 +17,19 @@ var Elements = {
     WIND_BARBS: "windBarbs",
     ISOBAR_LABELS: "pLabels",
     ISOTHERM_LABELS: "tLables",
-
-    HODOGRAPH_BOUNDARY: "hodographBoundary",
+    
+    HODO_BOUNDARY: "hodographBoundary",
     WINDSPEED_RADII: "windRadii",
     HODO_AXES: "hodoAxes",
-    HODOGRAPH_TRACE: "hodoTrace",
+    HODO_TRACE: "hodoTrace",
 
     classes: {
-        BOUNDARY: "bdy"
+        BOUNDARY: "bdy",
+        TRACE: "trace",
+        KM_0_3: "km_0_3",
+        KM_3_6: "km_3_6",
+        KM_6_9: "km_6_9",
+        KM_gt_9: "km_gt_9"
     }
 };
 
@@ -60,20 +65,23 @@ function addTranslation(elem, dx, dy) {
 
 function getTraceElement(trace, id, getCoordAtP) {
     var g = createGroupElement(id);
-    var coords = [];
-    trace.pressures.forEach(function(pres) {
-        var coord = getCoordAtP(pres);
-        coords.push(coord);
+    if (!trace.isEmpty()) {
+        g.setAttribute('class', Elements.classes.TRACE);
+        var coords = [];
+        trace.pressures.forEach(function (pres) {
+            var coord = getCoordAtP(pres);
+            coords.push(coord);
 
-        var circ = document.createElementNS(SVG_NS, 'circle');
-        circ.setAttribute('cx', coord.x.toString());
-        circ.setAttribute('cy', coord.y.toString());
-        circ.setAttribute('r', '3');
-        circ.style.opacity = '0';
-        g.appendChild(circ);
-    });
-    var path = getPath(coords);
-    g.appendChild(path);
+            var circ = document.createElementNS(SVG_NS, 'circle');
+            circ.setAttribute('cx', coord.x.toString());
+            circ.setAttribute('cy', coord.y.toString());
+            circ.setAttribute('r', '3');
+            circ.style.opacity = '0';
+            g.appendChild(circ);
+        });
+        var path = getPath(coords);
+        g.appendChild(path);
+    }
     return g;
 }
 
@@ -357,7 +365,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     var cy = dim.hodographArea.height / 2;
 
     var plotHodographBoundary = function (hodog) {
-        var rect = createBoundaryRect(Elements.HODOGRAPH_BOUNDARY, dim.hodographArea.height, dim.hodographArea.width);
+        var rect = createBoundaryRect(Elements.HODO_BOUNDARY, dim.hodographArea.height, dim.hodographArea.width);
         hodog.appendChild(rect);
     };
 
@@ -401,15 +409,64 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     };
 
     var plotWindTrace = function(hodog) {
-        var trace = saved.soundingProfiles().wind;
-        var elem = getTraceElement(trace, Elements.HODOGRAPH_TRACE, function (p) {
+        var windProfile = saved.soundingProfiles().wind;
+        var hghtProfile = saved.soundingProfiles().height;
+        var trace = hghtProfile.merge(windProfile, function (hgt, wind) {
+            return {
+                hgt: hgt,
+                speed: wind.speed,
+                dir: wind.dir
+            }
+        });
+
+        var extract = function (p) {
             var windPt = trace.getValue(p);
             var windDir = windPt.dir;
             var windSpd = windPt.speed;
             return transform.toHodographCoord(windSpd, windDir);
+        };
+
+        // find 3km, 6km, 9km pivot points
+        var threeKm, sixKm, nineKm;
+        var itr = trace.iterator();
+        while (itr.hasNext() && (threeKm = itr.next()).hgt < 3000);
+        while (itr.hasNext() && (sixKm = itr.next()).hgt < 6000);
+        while (itr.hasNext() && (nineKm = itr.next()).hgt < 9000);
+
+        var elem03km, elem36km, elem69km, elemGT9km;
+
+        if (threeKm != null) {
+            elem03km = getTraceElement(trace.filter(function (pt) {
+                return pt.hgt > 0 && pt.hgt <= threeKm.hgt;
+            }), Elements.HODO_TRACE + "_0_3km", extract);
+            elem03km.setAttribute('class', [elem03km.getAttribute('class'), Elements.classes.KM_0_3].join(" "));
+        }
+
+        if (threeKm != null && sixKm != null) {
+            elem36km = getTraceElement(trace.filter(function (pt) {
+                return pt.hgt >= threeKm.hgt && pt.hgt <= sixKm.hgt;
+            }), Elements.HODO_TRACE + "_3_6km", extract);
+            elem36km.setAttribute('class', [elem36km.getAttribute('class'), Elements.classes.KM_3_6].join(" "));
+        }
+
+        if (sixKm != null && nineKm != null) {
+            elem69km = getTraceElement(trace.filter(function (pt) {
+                return pt.hgt >= sixKm.hgt && pt.hgt <= nineKm.hgt;
+            }), Elements.HODO_TRACE + "_6_9km", extract);
+            elem69km.setAttribute('class', [elem69km.getAttribute('class'), Elements.classes.KM_6_9].join(" "));
+
+            elemGT9km = getTraceElement(trace.filter(function (pt) {
+                return pt.hgt >= nineKm.hgt;
+            }), Elements.HODO_TRACE + "_gt_9km", extract);
+            elemGT9km.setAttribute('class', [elemGT9km.getAttribute('class'), Elements.classes.KM_gt_9].join(" "));
+        }
+
+        [elem03km, elem36km, elem69km, elemGT9km].forEach(function (elem) {
+            if (elem != null) {
+                translateToCenter(elem);
+                hodog.appendChild(elem);
+            }
         });
-        translateToCenter(elem);
-        hodog.appendChild(elem);
     };
 
     return {

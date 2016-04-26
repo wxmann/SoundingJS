@@ -3,15 +3,15 @@
 }
 
 #tempTrace {
-    stroke:red; stroke-width: 3
+    stroke:red;
 }
 
 #dewptTrace {
-    stroke:green; stroke-width: 3
+    stroke:green;
 }
 
 #sbParcelTrace {
-    stroke:blue; stroke-width: 2
+    stroke:blue;
 }
 
 #isotherms {
@@ -46,6 +46,22 @@
     fill:none; stroke:gray; stroke-width: 1; opacity: 0.7;
 }
 
-#hodoTrace {
-    stroke:purple; stroke-width: 3; opacity: 1.0
+.trace {
+    stroke-width: 3; opacity: 1.0
+}
+
+.km_0_3 {
+    stroke:red;
+}
+
+.km_3_6 {
+    stroke:#00FF00;
+}
+
+.km_6_9 {
+    stroke:#FFFF00;
+}
+
+.km_gt_9 {
+    stroke:#00FFFF;
 }

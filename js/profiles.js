@@ -21,6 +21,44 @@ function Profile() {
         }
     };
 
+    /**
+     *
+     * @param otherProfile a separate profile
+     * @param mergeFn a merge function, which takes one value from each profile, and merges them into a single JS object.
+     */
+    this.merge = function(otherProfile, mergeFn) {
+        var newProfile = new Profile();
+        var _this = this;
+        this.pressures.forEach(function (p) {
+            var valThis = _this.getValue(p);
+            var valThat = otherProfile.getValue(p);
+            if (valThis != null && valThat != null) {
+                newProfile.addValue(p, mergeFn(valThis, valThat));
+            }
+        });
+        return newProfile;
+    };
+
+    this.isEmpty = function() {
+        return this.pressures.length == 0;
+    };
+
+    /**
+     * Predicates filter on -value-, not pressure.
+     * @param predicate function that tests value
+     */
+    this.filter = function (predicate) {
+        var newProfile = new Profile();
+        var _this = this;
+        this.pressures.forEach(function (p) {
+            var val = _this.getValue(p);
+            if (predicate(val)) {
+                newProfile.addValue(p, val);
+            }
+        });
+        return newProfile;
+    };
+
     this.iterator = function () {
         var _this = this;
         var savedIndex = 0;
@@ -142,6 +180,7 @@ var profiles = function(sounding){
         allFields: allObs,
         temperature: extract(allObs, fields.temperature),
         dewpoint: extract(allObs, fields.dewpoint),
+        height: extract(allObs, fields.height),
         wind: extract(allObs, function(point) {
             var windDir = fields.winddirection(point);
             var windSpeed = fields.windspeed(point);
