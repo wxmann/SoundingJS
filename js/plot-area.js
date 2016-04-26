@@ -163,11 +163,12 @@ var Transformer = (function (dim, skewTConfig, hodoConfig) {
 
         toHodographCoord: function (u, dir) {
             var relCoordinates = v_Transform(u, dir);
-            var xMax = dim.hodographArea.width / 2;
-            var yMax = dim.hodographArea.height / 2;
+            var w = dim.hodographArea.width / 2;
+            var h = dim.hodographArea.height / 2;
+            var r = Math.sqrt(w*w + h*h);
             return {
-                x: relCoordinates.relX * xMax,
-                y: relCoordinates.relY * yMax
+                x: relCoordinates.relX * r,
+                y: relCoordinates.relY * r
             }
         }
     }
