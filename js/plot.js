@@ -63,12 +63,12 @@ function addTranslation(elem, dx, dy) {
     elem.setAttribute('transform', 'translate(' + [dx, dy].toString() + ')');
 }
 
-function getTraceElement(trace, id, getCoordAtP) {
+function getTraceElement(profile, id, getCoordAtP) {
     var g = createGroupElement(id);
-    if (!trace.isEmpty()) {
+    if (!profile.isEmpty()) {
         g.setAttribute('class', Elements.classes.TRACE);
         var coords = [];
-        trace.pressures.forEach(function (pres) {
+        profile.pressures.forEach(function (pres) {
             var coord = getCoordAtP(pres);
             coords.push(coord);
 
@@ -91,9 +91,9 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         skewT.appendChild(rect);
     };
 
-    function getCoordFromTrace(trace) {
+    function getCoordFromProfile(profile) {
         var getCoordFromPres = function (pres) {
-            var T = trace.getValue(pres);
+            var T = profile.getValue(pres);
             var p = Number(pres);
             var coord = transform.toSkewTCoord(p, T);
             return coord;
@@ -102,14 +102,14 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotTempTrace = function(skewT) {
-        var trace = saved.soundingProfiles().temperature;
-        var elem = getTraceElement(trace, Elements.TEMP_TRACE, getCoordFromTrace(trace));
+        var profile = saved.soundingProfiles().temperature;
+        var elem = getTraceElement(profile, Elements.TEMP_TRACE, getCoordFromProfile(profile));
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
-        var trace = saved.soundingProfiles().dewpoint;
-        var elem = getTraceElement(trace, Elements.DEWPT_TRACE, getCoordFromTrace(trace));
+        var profile = saved.soundingProfiles().dewpoint;
+        var elem = getTraceElement(profile, Elements.DEWPT_TRACE, getCoordFromProfile(profile));
         skewT.appendChild(elem);
     };
 
@@ -251,14 +251,14 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotWindBarbs = function (windBarbLiner) {
-        var trace = saved.soundingProfiles().wind;
+        var windProfile = saved.soundingProfiles().wind;
         var i = 0;
         var g = createGroupElement(Elements.WIND_BARBS);
         windBarbLiner.appendChild(g);
 
-        trace.pressures.forEach(function (p) {
+        windProfile.pressures.forEach(function (p) {
             if (i % windBarbConfig.deltaBarb == 0) {
-                var wind = trace.getValue(p);
+                var wind = windProfile.getValue(p);
                 var yCoord = transform.toSkewTCoord(p, 0).y;
                 var xCoord = dim.skewTWindBarbs.width / 2;
                 var barb = getWindBarb(wind.speed, wind.dir, {x: xCoord, y: yCoord});
@@ -269,8 +269,8 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotSBParcel = function (skewT) {
-        var trace = saved.soundingProfiles().parcel.sb;
-        var elem = getTraceElement(trace, Elements.SB_PARCEL_TRACE, getCoordFromTrace(trace));
+        var parcelProfile = saved.soundingProfiles().parcel.sb;
+        var elem = getTraceElement(parcelProfile, Elements.SB_PARCEL_TRACE, getCoordFromProfile(parcelProfile));
         skewT.appendChild(elem);
     };
 
@@ -411,7 +411,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     var plotWindTrace = function(hodog) {
         var windProfile = saved.soundingProfiles().wind;
         var hghtProfile = saved.soundingProfiles().height;
-        var trace = hghtProfile.merge(windProfile, function (hgt, wind) {
+        var mergedProfile = hghtProfile.merge(windProfile, function (hgt, wind) {
             return {
                 hgt: hgt,
                 speed: wind.speed,
@@ -420,7 +420,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
         });
 
         var extract = function (p) {
-            var windPt = trace.getValue(p);
+            var windPt = mergedProfile.getValue(p);
             var windDir = windPt.dir;
             var windSpd = windPt.speed;
             return transform.toHodographCoord(windSpd, windDir);
@@ -428,7 +428,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
 
         // find 3km, 6km, 9km pivot points
         var threeKm, sixKm, nineKm;
-        var itr = trace.iterator();
+        var itr = mergedProfile.iterator();
         while (itr.hasNext() && (threeKm = itr.next()).hgt < 3000);
         while (itr.hasNext() && (sixKm = itr.next()).hgt < 6000);
         while (itr.hasNext() && (nineKm = itr.next()).hgt < 9000);
@@ -436,26 +436,26 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
         var elem03km, elem36km, elem69km, elemGT9km;
 
         if (threeKm != null) {
-            elem03km = getTraceElement(trace.filter(function (pt) {
+            elem03km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt > 0 && pt.hgt <= threeKm.hgt;
             }), Elements.HODO_TRACE + "_0_3km", extract);
             elem03km.setAttribute('class', [elem03km.getAttribute('class'), Elements.classes.KM_0_3].join(" "));
         }
 
         if (threeKm != null && sixKm != null) {
-            elem36km = getTraceElement(trace.filter(function (pt) {
+            elem36km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= threeKm.hgt && pt.hgt <= sixKm.hgt;
             }), Elements.HODO_TRACE + "_3_6km", extract);
             elem36km.setAttribute('class', [elem36km.getAttribute('class'), Elements.classes.KM_3_6].join(" "));
         }
 
         if (sixKm != null && nineKm != null) {
-            elem69km = getTraceElement(trace.filter(function (pt) {
+            elem69km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= sixKm.hgt && pt.hgt <= nineKm.hgt;
             }), Elements.HODO_TRACE + "_6_9km", extract);
             elem69km.setAttribute('class', [elem69km.getAttribute('class'), Elements.classes.KM_6_9].join(" "));
 
-            elemGT9km = getTraceElement(trace.filter(function (pt) {
+            elemGT9km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= nineKm.hgt;
             }), Elements.HODO_TRACE + "_gt_9km", extract);
             elemGT9km.setAttribute('class', [elemGT9km.getAttribute('class'), Elements.classes.KM_gt_9].join(" "));

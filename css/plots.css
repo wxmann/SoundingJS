@@ -11,7 +11,7 @@
 }
 
 #sbParcelTrace {
-    stroke:blue;
+    stroke:blue; stroke-width: 2
 }
 
 #isotherms {
