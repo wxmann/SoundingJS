@@ -94,13 +94,13 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotTempTrace = function(skewT) {
-        var trace = saved.soundingTraces().temperature;
+        var trace = saved.soundingProfiles().temperature;
         var elem = getTraceElement(trace, Elements.TEMP_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
-        var trace = saved.soundingTraces().dewpoint;
+        var trace = saved.soundingProfiles().dewpoint;
         var elem = getTraceElement(trace, Elements.DEWPT_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
@@ -243,7 +243,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotWindBarbs = function (windBarbLiner) {
-        var trace = saved.soundingTraces().wind;
+        var trace = saved.soundingProfiles().wind;
         var i = 0;
         var g = createGroupElement(Elements.WIND_BARBS);
         windBarbLiner.appendChild(g);
@@ -261,7 +261,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotSBParcel = function (skewT) {
-        var trace = saved.soundingTraces().parcel.sb;
+        var trace = saved.soundingProfiles().parcel.sb;
         var elem = getTraceElement(trace, Elements.SB_PARCEL_TRACE, getCoordFromTrace(trace));
         skewT.appendChild(elem);
     };
@@ -401,7 +401,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     };
 
     var plotWindTrace = function(hodog) {
-        var trace = saved.soundingTraces().wind;
+        var trace = saved.soundingProfiles().wind;
         var elem = getTraceElement(trace, Elements.HODOGRAPH_TRACE, function (p) {
             var windPt = trace.getValue(p);
             var windDir = windPt.dir;

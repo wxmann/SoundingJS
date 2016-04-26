@@ -4,7 +4,7 @@
 
 var properties = function(sounding) {
     return {
-        profile: sounding.profile,
+        rawProfile: sounding.profile,
         timestamp: sounding.value,
         station: sounding.station
     };

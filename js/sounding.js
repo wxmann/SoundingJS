@@ -4,18 +4,18 @@
 
 var saved = (function() {
     var _savedSounding = {};
-    var _savedTraces = null;
+    var _savedProfiles = null;
 
     return {
         setSounding: function(sounding) {
             _savedSounding = sounding;
-            _savedTraces = traces(properties(_savedSounding).profile);
+            _savedProfiles = traces(properties(_savedSounding).rawProfile);
         },
         getSounding: function() {
             return _savedSounding;
         },
-        soundingTraces: function () {
-            return _savedTraces;
+        soundingProfiles: function () {
+            return _savedProfiles;
         }
     }
 })();
