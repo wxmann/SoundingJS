@@ -1,7 +1,6 @@
 /**
  * Created by tangz on 4/17/2016.
  */
-
 var SVG_NS = 'http://www.w3.org/2000/svg';
 
 var Elements = {
@@ -21,7 +20,14 @@ var Elements = {
     HODO_BOUNDARY: "hodographBoundary",
     WINDSPEED_RADII: "windRadii",
     HODO_AXES: "hodoAxes",
-    HODO_TRACE: "hodoTrace",
+    // HODO_TRACE: "hodoTrace",
+
+    hodoTrace: {
+        KM_0_3: "Hodo_km_0_3",
+        KM_3_6: "Hodo_km_3_6",
+        KM_6_9: "Hodo_km_6_9",
+        KM_gt_9: "Hodo_km_gt_9"
+    },
 
     classes: {
         BOUNDARY: "bdy",
@@ -75,7 +81,7 @@ function getTraceElement(profile, id, getCoordAtP) {
             var circ = document.createElementNS(SVG_NS, 'circle');
             circ.setAttribute('cx', coord.x.toString());
             circ.setAttribute('cy', coord.y.toString());
-            circ.setAttribute('r', '3');
+            circ.setAttribute('r', '2');
             circ.style.opacity = '0';
             g.appendChild(circ);
         });
@@ -438,26 +444,28 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
         if (threeKm != null) {
             elem03km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt > 0 && pt.hgt <= threeKm.hgt;
-            }), Elements.HODO_TRACE + "_0_3km", extract);
+            }), Elements.hodoTrace.KM_0_3, extract);
             elem03km.setAttribute('class', [elem03km.getAttribute('class'), Elements.classes.KM_0_3].join(" "));
         }
 
         if (threeKm != null && sixKm != null) {
             elem36km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= threeKm.hgt && pt.hgt <= sixKm.hgt;
-            }), Elements.HODO_TRACE + "_3_6km", extract);
+            }), Elements.hodoTrace.KM_3_6, extract);
             elem36km.setAttribute('class', [elem36km.getAttribute('class'), Elements.classes.KM_3_6].join(" "));
         }
 
         if (sixKm != null && nineKm != null) {
             elem69km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= sixKm.hgt && pt.hgt <= nineKm.hgt;
-            }), Elements.HODO_TRACE + "_6_9km", extract);
+            }), Elements.hodoTrace.KM_6_9, extract);
             elem69km.setAttribute('class', [elem69km.getAttribute('class'), Elements.classes.KM_6_9].join(" "));
+        }
 
+        if (nineKm != null) {
             elemGT9km = getTraceElement(mergedProfile.filter(function (pt) {
                 return pt.hgt >= nineKm.hgt;
-            }), Elements.HODO_TRACE + "_gt_9km", extract);
+            }), Elements.hodoTrace.KM_gt_9, extract);
             elemGT9km.setAttribute('class', [elemGT9km.getAttribute('class'), Elements.classes.KM_gt_9].join(" "));
         }
 

@@ -67,12 +67,13 @@
 		SkewTPlotter.plotSoundingData(skewT);
 		SkewTPlotter.plotWindBarbs(windBarbLiner);
 
-		addThermoListeners();
-
 		// plot hodograph
 		var hodograph = document.getElementById('hodograph');
 		HodographPlotter.plotHodographOutline(hodograph);
 		HodographPlotter.plotSoundingData(hodograph);
+
+		// listeners
+		addTraceListeners();
 	</script>
 
 </body>
