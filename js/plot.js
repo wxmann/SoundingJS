@@ -275,7 +275,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotSBParcel = function (skewT) {
-        var parcelProfile = saved.soundingProfiles().parcel.sb;
+        var parcelProfile = getSBParcel(saved.soundingProfiles());
         var elem = getTraceElement(parcelProfile, Elements.SB_PARCEL_TRACE, getCoordFromProfile(parcelProfile));
         skewT.appendChild(elem);
     };

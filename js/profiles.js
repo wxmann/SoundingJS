@@ -23,7 +23,8 @@ Profile.prototype.addValue = function(p, val) {
 };
 
 /**
- * Merges two profiles into one.
+ * Merges two profiles into one. Points in which one or the other profile has a null value are skipped.
+ *
  * @param otherProfile a separate profile
  * @param mergeFn a merge function, which takes one value from each profile, and merges them into a single JS object.
  */
@@ -56,6 +57,20 @@ Profile.prototype.filter = function (predicate) {
         if (predicate(val)) {
             newProfile.addValue(p, val);
         }
+    });
+    return newProfile;
+};
+
+/**
+ * Returns a profile where the values are mapped using the passed function.
+ * @param fn a function that must take the profile value as its argument.
+ */
+Profile.prototype.apply = function (fn) {
+    var newProfile = new Profile();
+    var _this = this;
+    this.pressures.forEach(function (p) {
+        var val = _this.getValue(p);
+        newProfile.addValue(p, fn(val));
     });
     return newProfile;
 };
@@ -138,9 +153,9 @@ Profile.prototype.iterator = function () {
 ///// profiles for a sounding //////
 
 var profiles = function(sounding){
-    var allObs = allTraces();
+    var allObs = allProfiles();
 
-    function allTraces() {
+    function allProfiles() {
         var trace = new Profile();
         properties(sounding).rawProfile.forEach(function (point) {
             var pressureVal = fields.pressure(point);
@@ -152,38 +167,20 @@ var profiles = function(sounding){
         return trace;
     }
 
-    function getParcel(sourceOb) {
-        var LCL = lcl(sourceOb.p, sourceOb.T, sourceOb.Td);
-        var parcelTrace = new Profile();
-        parcelTrace.addValue(sourceOb.p, sourceOb.T);
-        parcelTrace.addValue(LCL.p, LCL.T);
-        var thetaFromSfc = dryAdiabat(sourceOb.p, sourceOb.T);
-        var thetaEAboveLCL = thetaE(LCL.p, LCL.T);
+    var isNonNull = function (val) {
+        return val != null;
+    };
 
-        // generate trace for points every 25mb
-        // do not hit 0mb, I wouldn't doubt some funky behavior there
-        for (var p = sourceOb.p - 25; p >= 25; p -= 25) {
-            var parcelTemp;
-            if (p > LCL.p) {
-                parcelTemp = tempAtDryAdiabat(p, thetaFromSfc);
-            } else {
-                parcelTemp = tempAtThetaE(p, thetaEAboveLCL);
-            }
-            parcelTrace.addValue(p, parcelTemp);
-        }
-        return parcelTrace;
-    }
-
-    var parcel = {
-        sb: getParcel(parcelSources.surface(allObs))
+    var extract = function(fn) {
+        return allObs.apply(fn).filter(isNonNull);
     };
 
     return {
         allFields: allObs,
-        temperature: extract(allObs, fields.temperature),
-        dewpoint: extract(allObs, fields.dewpoint),
-        height: extract(allObs, fields.height),
-        wind: extract(allObs, function(point) {
+        temperature: extract(fields.temperature),
+        dewpoint: extract(fields.dewpoint),
+        height: extract(fields.height),
+        wind: extract(function(point) {
             var windDir = fields.winddirection(point);
             var windSpeed = fields.windspeed(point);
             if (windDir == null || windSpeed == null) {
@@ -194,38 +191,6 @@ var profiles = function(sounding){
                     dir: windDir
                 }
             }
-        }),
-        parcel: parcel
+        })
     }
 };
-
-function extract(allFields, extractionFn) {
-    var profile = new Profile();
-    allFields.pressures.forEach(function (p) {
-        var val = extractionFn(allFields.getValue(p));
-        if (val != null) {
-            profile.addValue(p, val);
-        }
-    });
-    return profile;
-}
-
-var parcelSources = (function () {
-    var getSb = function (allFields) {
-        var TTdProfile = extract(allFields, function (point) {
-            var p = fields.pressure(point);
-            var T = fields.temperature(point);
-            var Td = fields.dewpoint(point);
-            if (p == null || T == null || Td == null) {
-                return null;
-            } else {
-                return {p: p, T: T, Td: Td}
-            }
-        });
-        return TTdProfile.iterator().first();
-    };
-
-    return {
-        surface: getSb
-    }
-})();
