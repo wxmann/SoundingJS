@@ -109,10 +109,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
 
     return {
         plotHodographOutline: function (hodographCanvas) {
-            hodographCanvas.setAttribute('x', dim.hodographArea.x.toString());
-            hodographCanvas.setAttribute('y', dim.hodographArea.y.toString());
-            hodographCanvas.setAttribute('width', dim.hodographArea.width.toString());
-            hodographCanvas.setAttribute('height', dim.hodographArea.height.toString());
+            setDimensions(hodographCanvas, dim.hodographArea);
             plotHodographBoundary(hodographCanvas);
             plotHodographRadii(hodographCanvas);
             plotHodographAxes(hodographCanvas);

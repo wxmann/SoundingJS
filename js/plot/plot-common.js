@@ -91,3 +91,11 @@ var getTraceElement = function(profile, id, getCoordAtP) {
     }
     return g;
 };
+
+var setDimensions = function(canvas, dim) {
+    canvas.setAttribute('x', dim.x.toString());
+    canvas.setAttribute('y', dim.y.toString());
+    // TODO: set viewport area instead of width/height explicitly
+    canvas.setAttribute('width', dim.width.toString());
+    canvas.setAttribute('height', dim.height.toString());
+};

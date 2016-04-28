@@ -2,7 +2,6 @@
  * Created by tangz on 4/17/2016.
  */
 
-
 var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     var plotSkewTBoundary = function(skewT) {
         var rect = createBoundaryRect(Elements.SKEW_T_BOUNDARY, dim.skewTArea.height, dim.skewTArea.width);
@@ -239,19 +238,20 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         plotSkewTLabels: function (labelCanvas) {
             var realWidth = dim.skewTLabel.x + dim.skewTLabel.width + dim.skewTArea.width + dim.skewTWindBarbs.width;
             var realHght = dim.skewTLabel.y + dim.skewTLabel.height + dim.upperPadding + dim.skewTArea.height;
-            labelCanvas.setAttribute('width', realWidth.toString());
-            labelCanvas.setAttribute('height', realHght.toString());
-            labelCanvas.setAttribute('x', dim.skewTLabel.x.toString());
-            labelCanvas.setAttribute('y', dim.skewTLabel.y.toString());
+            var labelDim = {
+                x: dim.skewTLabel.x,
+                y: dim.skewTLabel.y,
+                width: realWidth,
+                height: realHght
+            };
+            setDimensions(labelCanvas, labelDim);
+
             plotPressureLabels(labelCanvas);
             plotTempLabels(labelCanvas);
         },
 
         plotSkewTOutline: function (skewTCanvas) {
-            skewTCanvas.setAttribute('x', dim.skewTArea.x.toString());
-            skewTCanvas.setAttribute('y', dim.skewTArea.y.toString());
-            skewTCanvas.setAttribute('width', dim.skewTArea.width.toString());
-            skewTCanvas.setAttribute('height', dim.skewTArea.height.toString());
+            setDimensions(skewTCanvas, dim.skewTArea);
             plotSkewTBoundary(skewTCanvas);
             plotPressures(skewTCanvas);
             plotIsotherms(skewTCanvas);
@@ -261,10 +261,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         },
 
         plotWindBarbs: function(windBarbCanvas) {
-            windBarbCanvas.setAttribute('x', dim.skewTWindBarbs.x.toString());
-            windBarbCanvas.setAttribute('y', dim.skewTWindBarbs.y.toString());
-            windBarbCanvas.setAttribute('width', dim.skewTWindBarbs.width.toString());
-            windBarbCanvas.setAttribute('height', dim.skewTWindBarbs.height.toString());
+            setDimensions(windBarbCanvas, dim.skewTWindBarbs);
             plotWindBarbs(windBarbCanvas);
         },
 
