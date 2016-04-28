@@ -2,10 +2,6 @@
  * Created by tangz on 4/28/2016.
  */
 
-/**
- * Created by tangz on 4/17/2016.
- */
-
 var SkewTBackground = (function (dim, skewTConfig, transform) {
     var plotSkewTBoundary = function(skewT) {
         var rect = createBoundaryRect(Elements.SKEW_T_BOUNDARY, dim.skewTArea.height, dim.skewTArea.width);
