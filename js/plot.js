@@ -108,13 +108,13 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotTempTrace = function(skewT) {
-        var profile = saved.soundingProfiles().temperature;
+        var profile = profileExtract.temperature(saved.soundingProfiles());
         var elem = getTraceElement(profile, Elements.TEMP_TRACE, getCoordFromProfile(profile));
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
-        var profile = saved.soundingProfiles().dewpoint;
+        var profile = profileExtract.dewpoint(saved.soundingProfiles());
         var elem = getTraceElement(profile, Elements.DEWPT_TRACE, getCoordFromProfile(profile));
         skewT.appendChild(elem);
     };
@@ -257,7 +257,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
     }
 
     var plotWindBarbs = function (windBarbLiner) {
-        var windProfile = saved.soundingProfiles().wind;
+        var windProfile = profileExtract.wind(saved.soundingProfiles());
         var i = 0;
         var g = createGroupElement(Elements.WIND_BARBS);
         windBarbLiner.appendChild(g);
@@ -415,57 +415,51 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     };
 
     var plotWindTrace = function(hodog) {
-        var windProfile = saved.soundingProfiles().wind;
-        var hghtProfile = saved.soundingProfiles().height;
-        var mergedProfile = hghtProfile.merge(windProfile, function (hgt, wind) {
-            return {
-                hgt: hgt,
-                speed: wind.speed,
-                dir: wind.dir
-            }
+        var filteredProfile = saved.soundingProfiles().filter(function (ob) {
+            return ob.hasHeight() && ob.hasWind();
         });
 
-        var extract = function (p) {
-            var windPt = mergedProfile.getValue(p);
-            var windDir = windPt.dir;
-            var windSpd = windPt.speed;
+        var toHodoCoord = function (p) {
+            var windPt = filteredProfile.getValue(p);
+            var windDir = windPt.windDir();
+            var windSpd = windPt.windSpeed();
             return transform.toHodographCoord(windSpd, windDir);
         };
 
         // find 3km, 6km, 9km pivot points
         var threeKm, sixKm, nineKm;
-        var itr = mergedProfile.iterator();
-        while (itr.hasNext() && (threeKm = itr.next()).hgt < 3000);
-        while (itr.hasNext() && (sixKm = itr.next()).hgt < 6000);
-        while (itr.hasNext() && (nineKm = itr.next()).hgt < 9000);
+        var itr = filteredProfile.iterator();
+        while (itr.hasNext() && (threeKm = itr.next()).height() < 3000);
+        while (itr.hasNext() && (sixKm = itr.next()).height() < 6000);
+        while (itr.hasNext() && (nineKm = itr.next()).height() < 9000);
 
         var elem03km, elem36km, elem69km, elemGT9km;
 
         if (threeKm != null) {
-            elem03km = getTraceElement(mergedProfile.filter(function (pt) {
-                return pt.hgt > 0 && pt.hgt <= threeKm.hgt;
-            }), Elements.hodoTrace.KM_0_3, extract);
+            elem03km = getTraceElement(filteredProfile.filter(function (pt) {
+                return pt.height() > 0 && pt.height() <= threeKm.height();
+            }), Elements.hodoTrace.KM_0_3, toHodoCoord);
             elem03km.setAttribute('class', [elem03km.getAttribute('class'), Elements.classes.KM_0_3].join(" "));
         }
 
         if (threeKm != null && sixKm != null) {
-            elem36km = getTraceElement(mergedProfile.filter(function (pt) {
-                return pt.hgt >= threeKm.hgt && pt.hgt <= sixKm.hgt;
-            }), Elements.hodoTrace.KM_3_6, extract);
+            elem36km = getTraceElement(filteredProfile.filter(function (pt) {
+                return pt.height() >= threeKm.height() && pt.height() <= sixKm.height();
+            }), Elements.hodoTrace.KM_3_6, toHodoCoord);
             elem36km.setAttribute('class', [elem36km.getAttribute('class'), Elements.classes.KM_3_6].join(" "));
         }
 
         if (sixKm != null && nineKm != null) {
-            elem69km = getTraceElement(mergedProfile.filter(function (pt) {
-                return pt.hgt >= sixKm.hgt && pt.hgt <= nineKm.hgt;
-            }), Elements.hodoTrace.KM_6_9, extract);
+            elem69km = getTraceElement(filteredProfile.filter(function (pt) {
+                return pt.height() >= sixKm.height() && pt.height() <= nineKm.height();
+            }), Elements.hodoTrace.KM_6_9, toHodoCoord);
             elem69km.setAttribute('class', [elem69km.getAttribute('class'), Elements.classes.KM_6_9].join(" "));
         }
 
         if (nineKm != null) {
-            elemGT9km = getTraceElement(mergedProfile.filter(function (pt) {
-                return pt.hgt >= nineKm.hgt;
-            }), Elements.hodoTrace.KM_gt_9, extract);
+            elemGT9km = getTraceElement(filteredProfile.filter(function (pt) {
+                return pt.height() >= nineKm.height();
+            }), Elements.hodoTrace.KM_gt_9, toHodoCoord);
             elemGT9km.setAttribute('class', [elemGT9km.getAttribute('class'), Elements.classes.KM_gt_9].join(" "));
         }
 

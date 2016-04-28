@@ -10,23 +10,39 @@ var properties = function(sounding) {
     };
 };
 
-var fields = {
-    pressure: function (point) {
-        return point.pres;
+var profileExtract = {
+    temperature: function (profile) {
+        return profile.filter(function(ob) {
+            return ob.hasTemperature();
+        }).apply(function (ob) {
+            return ob.temperature();
+        })
     },
-    temperature: function (point) {
-        return point.tmpc;
+    
+    dewpoint: function (profile) {
+        return profile.filter(function (ob) {
+            return ob.hasDewpoint();
+        }).apply(function (ob) {
+            return ob.dewpoint();
+        });
     },
-    dewpoint: function (point) {
-        return point.dwpc;
+    
+    wind: function (profile) {
+        return profile.filter(function (ob) {
+            return ob.hasWind();
+        }).apply(function (ob) {
+            return {
+                speed: ob.windSpeed(),
+                dir: ob.windDir()
+            }
+        })
     },
-    windspeed: function (point) {
-        return point.sknt;
-    },
-    winddirection: function (point) {
-        return point.drct;
-    },
-    height: function (point) {
-        return point.hght;
+
+    height: function (profile) {
+        return profile.filter(function (ob) {
+            return ob.hasHeight();
+        }).apply(function (ob) {
+            return ob.height();
+        });
     }
 };

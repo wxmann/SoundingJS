@@ -47,13 +47,13 @@ function getTimeStamp(year, month, day, hour) {
 
 /* Sanitize and conversion */
 
-var sanitize = function(sounding) {
-    sounding.profile = sounding.profile.filter(function(point) {
-        return isValidPressure(fields.pressure(point))
-            && isValidTemp(fields.temperature(point))
-            && isValidTemp(fields.dewpoint(point));
-    });
-};
+// var sanitize = function(sounding) {
+//     sounding.profile = sounding.profile.filter(function(point) {
+//         return isValidPressure(fields.pressure(point))
+//             && isValidTemp(fields.temperature(point))
+//             && isValidTemp(fields.dewpoint(point));
+//     });
+// };
 
 function isValidPressure(pres) {
     return pres != null && pres > 0 && pres < 9999;

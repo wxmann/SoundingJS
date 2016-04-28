@@ -59,10 +59,7 @@ var thetaE = function(p, T) {
 var lcl = function (p, T, Td) {
     var theta = dryAdiabat(p, T);  // theta is conserved in dry adiabatic ascent
     var T_LCL = lclT_from_TTd(T, Td);
-    return {
-        p: presAtDryAdiabat(T_LCL, theta),
-        T: T_LCL
-    }
+    return new Ob(presAtDryAdiabat(T_LCL, theta), T_LCL, T_LCL, NODATA, NODATA, NODATA);
 };
 
 /**
@@ -100,6 +97,17 @@ var tempAtMixingRatio = function(p, r) {
     var temp = Math.pow(m, 0.0915) - 1.2035;
     var Tk = Math.pow(10, x) - 7.07475 + 38.9114*temp*temp;
     return temp_KtoC(Tk);
+};
+
+// var virtualTempAtPres = function (p, T) {
+//     var r = mixingRatio(p, T);
+//     return virtualTempAtMixingRatio(T, r);
+// };
+
+var virtualTempAtMixingRatio = function (T, r) {
+    var Tk = temp_CtoK(T);
+    var Tvk = Tk * (1+0.61*r);
+    return temp_KtoC(Tvk);
 };
 
 var temp_CtoK = function(T) {

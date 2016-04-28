@@ -153,44 +153,12 @@ Profile.prototype.iterator = function () {
 ///// profiles for a sounding //////
 
 var profiles = function(sounding){
-    var allObs = allProfiles();
-
-    function allProfiles() {
-        var trace = new Profile();
-        properties(sounding).rawProfile.forEach(function (point) {
-            var pressureVal = fields.pressure(point);
-            var allvals = point;
-            if (pressureVal != null) {
-                trace.addValue(pressureVal, allvals);
-            }
-        });
-        return trace;
-    }
-
-    var isNonNull = function (val) {
-        return val != null;
-    };
-
-    var extract = function(fn) {
-        return allObs.apply(fn).filter(isNonNull);
-    };
-
-    return {
-        allFields: allObs,
-        temperature: extract(fields.temperature),
-        dewpoint: extract(fields.dewpoint),
-        height: extract(fields.height),
-        wind: extract(function(point) {
-            var windDir = fields.winddirection(point);
-            var windSpeed = fields.windspeed(point);
-            if (windDir == null || windSpeed == null) {
-                return null;
-            } else {
-                return {
-                    speed: windSpeed,
-                    dir: windDir
-                }
-            }
-        })
-    }
+    var prof = new Profile();
+    properties(sounding).rawProfile.forEach(function (point) {
+        var ob = asOb(point);
+        if (ob.hasPressure()) {
+            prof.addValue(ob.pressure(), ob);
+        }
+    });
+    return prof;
 };
