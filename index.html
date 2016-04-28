@@ -10,6 +10,8 @@
 	<script src="js/plot/plot-common.js"></script>
 	<script src="js/plot/plot-hodo.js"></script>
 	<script src="js/plot/plot-skewT.js"></script>
+	<script src="js/plot/outline-skewT.js"></script>
+	<script src="js/plot/outline-hodo.js"></script>
 	<script src="js/load.js"></script>
 	<script src="js/accessors.js"></script>
 	<script src="js/profiles.js"></script>
@@ -66,15 +68,15 @@
 		var labels = document.getElementById('skewTLabels');
 		var windBarbLiner = document.getElementById('windBarbLiner');
 
-		SkewTPlotter.plotSkewTOutline(skewT);
-		SkewTPlotter.plotSkewTLabels(labels);
-		SkewTPlotter.plotSoundingData(skewT);
-		SkewTPlotter.plotWindBarbs(windBarbLiner);
+		SkewTBackground.plotSkewTOutline(skewT);
+		SkewTBackground.plotSkewTLabels(labels);
+		SkewTPlots.plotSoundingData(skewT);
+		SkewTPlots.plotWindBarbs(windBarbLiner);
 
 		// plot hodograph
 		var hodograph = document.getElementById('hodograph');
-		HodographPlotter.plotHodographOutline(hodograph);
-		HodographPlotter.plotSoundingData(hodograph);
+		HodographBackground.plotHodographOutline(hodograph);
+		HodographPlots.plotSoundingData(hodograph);
 
 		// listeners
 		addTraceListeners();

@@ -120,7 +120,7 @@ var HodographPlotConfig = (function () {
     var vSeq = seq(0, 120, 10);
 
     return {
-        radii: vSeq.values,
+        vRadii: vSeq.values,
         vMax: vSeq.max
     }
 })();
