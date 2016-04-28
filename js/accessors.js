@@ -14,7 +14,7 @@ var profileExtract = {
     temperature: function (profile) {
         return profile.filter(function(ob) {
             return ob.hasTemperature();
-        }).apply(function (ob) {
+        }).map(function (ob) {
             return ob.temperature();
         })
     },
@@ -22,7 +22,7 @@ var profileExtract = {
     dewpoint: function (profile) {
         return profile.filter(function (ob) {
             return ob.hasDewpoint();
-        }).apply(function (ob) {
+        }).map(function (ob) {
             return ob.dewpoint();
         });
     },
@@ -30,7 +30,7 @@ var profileExtract = {
     wind: function (profile) {
         return profile.filter(function (ob) {
             return ob.hasWind();
-        }).apply(function (ob) {
+        }).map(function (ob) {
             return {
                 speed: ob.windSpeed(),
                 dir: ob.windDir()
@@ -41,7 +41,7 @@ var profileExtract = {
     height: function (profile) {
         return profile.filter(function (ob) {
             return ob.hasHeight();
-        }).apply(function (ob) {
+        }).map(function (ob) {
             return ob.height();
         });
     }

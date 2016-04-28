@@ -65,7 +65,7 @@ Profile.prototype.filter = function (predicate) {
  * Returns a profile where the values are mapped using the passed function.
  * @param fn a function that must take the profile value as its argument.
  */
-Profile.prototype.apply = function (fn) {
+Profile.prototype.map = function (fn) {
     var newProfile = new Profile();
     var _this = this;
     this.pressures.forEach(function (p) {
