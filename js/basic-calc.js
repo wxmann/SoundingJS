@@ -106,7 +106,7 @@ var tempAtMixingRatio = function(p, r) {
 
 var virtualTempAtMixingRatio = function (T, r) {
     var Tk = temp_CtoK(T);
-    var Tvk = Tk * (1+0.61*r);
+    var Tvk = Tk * (1+0.61*r / 1000);
     return temp_KtoC(Tvk);
 };
 

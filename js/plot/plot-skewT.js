@@ -20,13 +20,13 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotTempTrace = function(skewT) {
         var profile = profileExtract.temperature(saved.soundingProfiles());
-        var elem = getTraceElement(profile, Elements.TEMP_TRACE, getCoordFromProfile(profile));
+        var elem = getTraceElement(profile, Elements.TEMP_TRACE, getCoordFromProfile(profile), true);
         skewT.appendChild(elem);
     };
 
     var plotDewptTrace = function (skewT) {
         var profile = profileExtract.dewpoint(saved.soundingProfiles());
-        var elem = getTraceElement(profile, Elements.DEWPT_TRACE, getCoordFromProfile(profile));
+        var elem = getTraceElement(profile, Elements.DEWPT_TRACE, getCoordFromProfile(profile), true);
         skewT.appendChild(elem);
     };
 
@@ -187,13 +187,13 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotSBParcel = function (skewT) {
         var parcelProfile = getSBParcel(saved.soundingProfiles());
-        var elem = getTraceElement(parcelProfile, Elements.SB_PARCEL_TRACE, getCoordFromProfile(parcelProfile));
+        var elem = getTraceElement(parcelProfile, Elements.SB_PARCEL_TRACE, getCoordFromProfile(parcelProfile), false);
         skewT.appendChild(elem);
     };
 
     var plotPressureLabels = function(labelCanvas) {
         var g = createGroupElement(Elements.ISOBAR_LABELS);
-        addTranslation(g, -10, 0);
+        translate(g, -10, 0);
         g.setAttribute('text-anchor', 'end');
         labelCanvas.appendChild(g);
 
@@ -210,7 +210,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
 
     var plotTempLabels = function(labelCanvas) {
         var g = createGroupElement(Elements.ISOTHERM_LABELS);
-        addTranslation(g, 0, 20);
+        translate(g, 0, 20);
         g.setAttribute('text-anchor', 'middle');
         labelCanvas.appendChild(g);
 
@@ -233,6 +233,12 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
         textElem.setAttribute('y', y.toString());
         return textElem;
     }
+    
+    var plotVirtualTempTrace = function(skewT) {
+        var profile = profileExtract.virtualTemp(saved.soundingProfiles());
+        var elem = getTraceElement(profile, Elements.VIRTUAL_TEMP_TRACE, getCoordFromProfile(profile));
+        skewT.appendChild(elem);
+    };
 
     return {
         plotSkewTLabels: function (labelCanvas) {
@@ -269,6 +275,7 @@ var SkewTPlotter = (function (dim, skewTConfig, windBarbConfig, transform) {
             plotTempTrace(skewTCanvas);
             plotDewptTrace(skewTCanvas);
             plotSBParcel(skewTCanvas);
+            plotVirtualTempTrace(skewTCanvas);
         }
     }
     

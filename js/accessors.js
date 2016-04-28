@@ -44,5 +44,13 @@ var profileExtract = {
         }).map(function (ob) {
             return ob.height();
         });
+    },
+
+    virtualTemp: function (profile) {
+        return profile.filter(function (ob) {
+            return ob.hasVirtualTemp();
+        }).map(function (ob) {
+            return ob.virtualTemp();
+        });
     }
 };

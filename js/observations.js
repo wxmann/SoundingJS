@@ -48,24 +48,24 @@ Ob.prototype.hasHeight = function () {
     return this.hgt != this.noValue;
 };
 
-Ob.prototype.hasMixingRatio = function () {
+Ob.prototype.hasSatMixingRatio = function () {
     return this.hasTemperature() && this.hasPressure();
 };
-Ob.prototype.mixingRatio = function () {
-    if (!this.hasMixingRatio()) {
+Ob.prototype.satMixingRatio = function () {
+    if (!this.hasSatMixingRatio()) {
         return this.noValue;
     }
     return mixingRatio(this.pressure(), this.temperature());
 };
 
 Ob.prototype.hasVirtualTemp = function () {
-    return this.hasTemperature() && this.hasMixingRatio();
+    return this.hasPressure() && this.hasTemperature() && this.hasDewpoint();
 };
 Ob.prototype.virtualTemp = function () {
     if (!this.hasVirtualTemp()) {
         return this.noValue;
     }
-    var r = this.mixingRatio();
+    var r = mixingRatio(this.pressure(), this.dewpoint());
     return virtualTempAtMixingRatio(this.temperature(), r);
 };
 

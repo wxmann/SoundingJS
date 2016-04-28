@@ -12,7 +12,7 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
     };
 
     function translateToCenter(elem) {
-        addTranslation(elem, cx, cy);
+        translate(elem, cx, cy);
     }
 
     var plotHodographRadii = function (hodog) {
@@ -74,28 +74,28 @@ var HodographPlotter = (function (dim, hodoConfig, transform) {
         if (threeKm != null) {
             elem03km = getTraceElement(filteredProfile.filter(function (pt) {
                 return pt.height() > 0 && pt.height() <= threeKm.height();
-            }), Elements.hodoTrace.KM_0_3, toHodoCoord);
+            }), Elements.hodoTrace.KM_0_3, toHodoCoord, true);
             elem03km.setAttribute('class', [elem03km.getAttribute('class'), Elements.classes.KM_0_3].join(" "));
         }
 
         if (threeKm != null && sixKm != null) {
             elem36km = getTraceElement(filteredProfile.filter(function (pt) {
                 return pt.height() >= threeKm.height() && pt.height() <= sixKm.height();
-            }), Elements.hodoTrace.KM_3_6, toHodoCoord);
+            }), Elements.hodoTrace.KM_3_6, toHodoCoord, true);
             elem36km.setAttribute('class', [elem36km.getAttribute('class'), Elements.classes.KM_3_6].join(" "));
         }
 
         if (sixKm != null && nineKm != null) {
             elem69km = getTraceElement(filteredProfile.filter(function (pt) {
                 return pt.height() >= sixKm.height() && pt.height() <= nineKm.height();
-            }), Elements.hodoTrace.KM_6_9, toHodoCoord);
+            }), Elements.hodoTrace.KM_6_9, toHodoCoord, true);
             elem69km.setAttribute('class', [elem69km.getAttribute('class'), Elements.classes.KM_6_9].join(" "));
         }
 
         if (nineKm != null) {
             elemGT9km = getTraceElement(filteredProfile.filter(function (pt) {
                 return pt.height() >= nineKm.height();
-            }), Elements.hodoTrace.KM_gt_9, toHodoCoord);
+            }), Elements.hodoTrace.KM_gt_9, toHodoCoord, true);
             elemGT9km.setAttribute('class', [elemGT9km.getAttribute('class'), Elements.classes.KM_gt_9].join(" "));
         }
 

@@ -65,3 +65,8 @@
 .km_gt_9 {
     stroke:#00FFFF;
 }
+
+#TvTrace {
+    stroke:red; stroke-dasharray: 15,3; stroke-width: 2;
+    opacity: 0.5;
+}

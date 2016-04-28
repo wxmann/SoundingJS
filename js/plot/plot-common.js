@@ -18,10 +18,11 @@ var Elements = {
     ISOBAR_LABELS: "pLabels",
     ISOTHERM_LABELS: "tLables",
 
+    VIRTUAL_TEMP_TRACE: "TvTrace",
+
     HODO_BOUNDARY: "hodographBoundary",
     WINDSPEED_RADII: "windRadii",
     HODO_AXES: "hodoAxes",
-    // HODO_TRACE: "hodoTrace",
 
     hodoTrace: {
         KM_0_3: "Hodo_km_0_3",
@@ -66,11 +67,11 @@ var getPath = function(coords) {
     return line;
 };
 
-var addTranslation = function(elem, dx, dy) {
+var translate = function(elem, dx, dy) {
     elem.setAttribute('transform', 'translate(' + [dx, dy].toString() + ')');
 };
 
-var getTraceElement = function(profile, id, getCoordAtP) {
+var getTraceElement = function(profile, id, getCoordAtP, addPoints) {
     var g = createGroupElement(id);
     if (!profile.isEmpty()) {
         g.setAttribute('class', Elements.classes.TRACE);
@@ -78,13 +79,14 @@ var getTraceElement = function(profile, id, getCoordAtP) {
         profile.pressures.forEach(function (pres) {
             var coord = getCoordAtP(pres);
             coords.push(coord);
-
-            var circ = document.createElementNS(SVG_NS, 'circle');
-            circ.setAttribute('cx', coord.x.toString());
-            circ.setAttribute('cy', coord.y.toString());
-            circ.setAttribute('r', '2');
-            circ.style.opacity = '0';
-            g.appendChild(circ);
+            if (addPoints) {
+                var circ = document.createElementNS(SVG_NS, 'circle');
+                circ.setAttribute('cx', coord.x.toString());
+                circ.setAttribute('cy', coord.y.toString());
+                circ.setAttribute('r', '2');
+                circ.style.opacity = '0';
+                g.appendChild(circ);
+            }
         });
         var path = getPath(coords);
         g.appendChild(path);
