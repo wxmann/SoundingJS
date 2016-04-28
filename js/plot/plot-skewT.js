@@ -3,7 +3,6 @@
  */
 
 var SkewTPlots = (function (dim, skewTConfig, windBarbConfig, transform) {
-
     function getCoordFromProfile(profile) {
         var getCoordFromPres = function (pres) {
             var T = profile.getValue(pres);
