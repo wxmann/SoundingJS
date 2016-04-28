@@ -43,7 +43,7 @@ var satVaporPres = function(T) {
     return Math.pow(10, a0 - a1 + a2 - 2949.076 / Tk);
 };
 
-var dryAdiabat = function(p, T) {
+var potentialTemp = function(p, T) {
     var Tk = temp_CtoK(T);
     var theta = Tk * Math.pow(pRef / p, poissonDry);
     return temp_KtoC(theta);
@@ -52,12 +52,12 @@ var dryAdiabat = function(p, T) {
 var thetaE = function(p, T) {
     var Tk = temp_CtoK(T);
     var expArg = -2.6518986 * mixingRatio(p, T) / Tk;
-    var thetaS = temp_CtoK(dryAdiabat(p, T)) / Math.exp(expArg);
+    var thetaS = temp_CtoK(potentialTemp(p, T)) / Math.exp(expArg);
     return temp_KtoC(thetaS);
 };
 
 var lcl = function (p, T, Td) {
-    var theta = dryAdiabat(p, T);  // theta is conserved in dry adiabatic ascent
+    var theta = potentialTemp(p, T);  // theta is conserved in dry adiabatic ascent
     var T_LCL = lclT_from_TTd(T, Td);
     return new Ob(presAtDryAdiabat(T_LCL, theta), T_LCL, T_LCL, NODATA, NODATA, NODATA);
 };

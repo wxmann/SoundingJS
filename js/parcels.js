@@ -23,7 +23,7 @@ function getParcel(sourceOb) {
     var parcelTrace = new Profile();
     parcelTrace.addValue(sourceOb.pressure(), sourceOb.temperature());
     parcelTrace.addValue(LCL.pressure(), LCL.temperature());
-    var thetaFromSfc = dryAdiabat(sourceOb.pressure(), sourceOb.temperature());
+    var thetaFromSfc = potentialTemp(sourceOb.pressure(), sourceOb.temperature());
     var thetaEAboveLCL = thetaE(LCL.pressure(), LCL.temperature());
 
     // generate trace for points every 25mb
