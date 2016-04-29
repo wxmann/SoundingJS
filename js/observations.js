@@ -11,26 +11,25 @@ function Ob(p, T, Td, windspd, winddir, hgt) {
     this.windspd = windspd;
     this.winddir = winddir;
     this.hgt = hgt;
-    this.noValue = NODATA;
 }
 
 Ob.prototype.pressure = function () {
     return this.p;
 };
 Ob.prototype.hasPressure = function () {
-    return this.p != this.noValue;
+    return this.p != NODATA;
 };
 Ob.prototype.temperature = function () {
     return this.T;
 };
 Ob.prototype.hasTemperature = function () {
-    return this.T != this.noValue;
+    return this.T != NODATA;
 };
 Ob.prototype.dewpoint = function () {
     return this.Td;
 };
 Ob.prototype.hasDewpoint = function () {
-    return this.Td != this.noValue;
+    return this.Td != NODATA;
 };
 Ob.prototype.windSpeed = function () {
     return this.windspd;
@@ -39,13 +38,13 @@ Ob.prototype.windDir = function () {
     return this.winddir;
 };
 Ob.prototype.hasWind = function () {
-    return this.windspd != this.noValue && this.winddir != this.noValue;
+    return this.windspd != NODATA && this.winddir != NODATA;
 };
 Ob.prototype.height = function () {
     return this.hgt;
 };
 Ob.prototype.hasHeight = function () {
-    return this.hgt != this.noValue;
+    return this.hgt != NODATA;
 };
 
 Ob.prototype.hasSatMixingRatio = function () {
@@ -53,19 +52,27 @@ Ob.prototype.hasSatMixingRatio = function () {
 };
 Ob.prototype.satMixingRatio = function () {
     if (!this.hasSatMixingRatio()) {
-        return this.noValue;
+        return NODATA;
     }
     return mixingRatio(this.pressure(), this.temperature());
 };
 
+Ob.prototype.hasMixingRatio = function () {
+    return this.hasDewpoint() && this.hasPressure();
+};
+
+Ob.prototype.mixingRatio = function () {
+    return mixingRatio(this.pressure(), this.dewpoint());
+};
+
 Ob.prototype.hasVirtualTemp = function () {
-    return this.hasPressure() && this.hasTemperature() && this.hasDewpoint();
+    return this.hasMixingRatio() && this.hasTemperature();
 };
 Ob.prototype.virtualTemp = function () {
     if (!this.hasVirtualTemp()) {
-        return this.noValue;
+        return NODATA;
     }
-    var r = mixingRatio(this.pressure(), this.dewpoint());
+    var r = this.mixingRatio();
     return virtualTempAtMixingRatio(this.temperature(), r);
 };
 

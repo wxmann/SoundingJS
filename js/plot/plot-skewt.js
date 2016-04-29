@@ -102,11 +102,17 @@ var SkewTPlots = (function (dim, skewTConfig, windBarbConfig, transform) {
     };
 
     var plotSBParcel = function (skewT) {
-        var parcelProfile = getSBParcel(saved.soundingProfiles());
+        var parcelProfile = profileExtract.temperature(getSBParcel(saved.soundingProfiles()));
         var elem = getTraceElement(parcelProfile, Elements.SB_PARCEL_TRACE, getCoordFromProfile(parcelProfile), false);
         skewT.appendChild(elem);
     };
     
+    var plotSBParcelVirtual = function (skewT) {
+        var profile = profileExtract.virtualTemp(getSBParcel(saved.soundingProfiles()));
+        var elem = getTraceElement(profile, Elements.VIRTUAL_PARCEL_TRACE, getCoordFromProfile(profile), false);
+        skewT.appendChild(elem);
+    };
+        
     var plotVirtualTempTrace = function(skewT) {
         var profile = profileExtract.virtualTemp(saved.soundingProfiles());
         var elem = getTraceElement(profile, Elements.VIRTUAL_TEMP_TRACE, getCoordFromProfile(profile));
@@ -124,11 +130,8 @@ var SkewTPlots = (function (dim, skewTConfig, windBarbConfig, transform) {
             plotDewptTrace(skewTCanvas);
             plotSBParcel(skewTCanvas);
             plotVirtualTempTrace(skewTCanvas);
+            plotSBParcelVirtual(skewTCanvas);
         }
     }
     
 })(Dimensions, SkewTPlotConfig, WindBarbConfig, Transformer);
-
-
-
-

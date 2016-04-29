@@ -11,7 +11,7 @@
 }
 
 #sbParcelTrace {
-    stroke:blue; stroke-width: 2
+    stroke:blue; stroke-width: 2; opacity: 0.5;
 }
 
 #isotherms {
@@ -69,4 +69,8 @@
 #TvTrace {
     stroke:red; stroke-dasharray: 6,3; stroke-width: 2;
     opacity: 0.5;
+}
+
+#sbParcelTraceTv {
+    stroke:blue; stroke-dasharray: 6,3; stroke-width: 2;
 }

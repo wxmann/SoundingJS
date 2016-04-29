@@ -159,7 +159,3 @@ var SkewTBackground = (function (dim, skewTConfig, transform) {
     }
 
 })(Dimensions, SkewTPlotConfig, Transformer);
-
-
-
-

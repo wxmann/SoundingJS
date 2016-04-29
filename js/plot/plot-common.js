@@ -19,6 +19,7 @@ var Elements = {
     ISOTHERM_LABELS: "tLables",
 
     VIRTUAL_TEMP_TRACE: "TvTrace",
+    VIRTUAL_PARCEL_TRACE: "sbParcelTraceTv",
 
     HODO_BOUNDARY: "hodographBoundary",
     WINDSPEED_RADII: "windRadii",
