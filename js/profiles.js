@@ -75,6 +75,71 @@ Profile.prototype.map = function (fn) {
     return newProfile;
 };
 
+/**
+ * Returns the closest elements in allP relative to argument p. Assumes that allP is sorted in descending order.
+ * If p > allP[0] or if p < allP[last], return an empty list.
+ * If p exactly matches an element in allP, returns an array of one element, p.
+ * Else, return an array of the closest elements in allP.
+ *
+ * @param p
+ * @param allP
+ * @returns {*}
+ */
+function searchClosestWithin(p, allP) {
+    var len = allP.length;
+    if (len == 0) {
+        return [];
+    } else if (len <= 3) {
+        // out of bounds, we can only interpolate within bounds of allP
+        if (p > allP[0] || p < allP[len - 1]) {
+            return [];
+        }
+        var pLeftBound = allP[0];
+        for (var i = 0; i <= 3; i++) {
+            var pCandidate = allP[i];
+            if (p == pCandidate) {
+                // found exact, we're done
+                return [p];
+            } else if (pCandidate > p) {
+                // we've got to keep going but keep track of the passed element
+                pLeftBound = pCandidate;
+            } else {
+                // found it, we've just passed our target!
+                return [pLeftBound, pCandidate];
+            }
+        }
+    } else {
+        var pivot = Math.floor(len / 2);
+        var val = allP[pivot];
+        if (p > val) {
+            return searchClosestWithin(p, allP.slice(0, pivot + 1));
+        } else if (p < val) {
+            return searchClosestWithin(p, allP.slice(pivot, len));
+        } else {
+            return allP[pivot];
+        }
+    }
+}
+
+Profile.prototype.interp = function(p, interpFn) {
+    var closestP = searchClosestWithin(p, this.pressures);
+    if (closestP.length == 0) {
+        throw "pressure is greater than max pressure or less than min pressure";
+    } else if (closestP.length == 1) {
+        return this.getValue(p);
+    } else {
+        var closestPObj = {
+            bottom: closestP[0],
+            top: closestP[1]
+        };
+        var closestValObj = {
+            bottom: this.getValue(closestP[0]),
+            top: this.getValue(closestP[1])
+        };
+        return interpFn(p, closestPObj, closestValObj);
+    }
+};
+
 Profile.prototype.iterator = function () {
     var _this = this;
     var savedIndex = 0;

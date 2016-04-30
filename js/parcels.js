@@ -7,10 +7,42 @@ var parcelSources = function (soundingProfile) {
         return ob.hasPressure() && ob.hasHeight() && ob.hasTemperature() && ob.hasDewpoint();
     });
 
+    /**
+     * Surface-based parcel.
+     */
     var surface = filteredProfile.iterator().first();
+    
+    function getMLOb(layer) {
+        var n = 10;
+        var sampling = layer / n;
+        var p0 = surface.pressure();
+        var pressures = [];
+        for (var dp = 0; dp <= layer; dp += sampling) {
+            pressures.push(p0 - dp);
+        }
+
+        var tempEnv = profileExtract.temperature(filteredProfile);
+        var dewptEnv = profileExtract.dewpoint(filteredProfile);
+        var tempSum = 0,
+            dewptSum = 0;
+        pressures.forEach(function (p) {
+            tempSum += tempEnv.interp(p, logInterp.forNumbers);
+            dewptSum += dewptEnv.interp(p, logInterp.forNumbers);
+        });
+
+        var tempAvg = tempSum / n;
+        var dewptAvg = dewptSum / n;
+        return new Ob(surface.pressure(), tempAvg, dewptAvg, NODATA, NODATA, NODATA);
+    }
+
+    /**
+     * Mean-layered parcel averaged over lowest 100-mb from surface.
+     */
+    var ml100 = getMLOb(100);
 
     return {
-        surface: surface
+        surface: surface,
+        ml100: ml100
     }
 };
 
@@ -31,6 +63,12 @@ function parcelOb(p, parcelTemp, mixingRatio) {
     return parcOb;
 }
 
+/**
+ * SourceOb must contain: temperature, dewpoint, pressure.
+ *
+ * @param sourceOb
+ * @returns {Profile}
+ */
 function getParcel(sourceOb) {
     var LCL = lcl(sourceOb.pressure(), sourceOb.temperature(), sourceOb.dewpoint());
     var parcelTrace = new Profile();
