@@ -50,6 +50,10 @@ var getSBParcel = function (fromProfiles) {
     return getParcel(parcelSources(fromProfiles).surface);
 };
 
+var getMLParcel = function (fromProfiles) {
+    return getParcel(parcelSources(fromProfiles).ml100);
+};
+
 function parcelOb(p, parcelTemp, mixingRatio) {
     var parcOb = new Ob(p, parcelTemp, NODATA, NODATA, NODATA, NODATA);
     if (mixingRatio != null) {

@@ -118,6 +118,12 @@ var SkewTPlots = (function (dim, skewTConfig, windBarbConfig, transform) {
         var elem = getTraceElement(profile, Elements.VIRTUAL_TEMP_TRACE, getCoordFromProfile(profile));
         skewT.appendChild(elem);
     };
+    
+    var plotMLParcel = function (skewT) {
+        var parcelProfile = profileExtract.temperature(getMLParcel(saved.soundingProfiles()));
+        var elem = getTraceElement(parcelProfile, Elements.ML_PARCEL_TRACE, getCoordFromProfile(parcelProfile), false);
+        skewT.appendChild(elem);
+    };
 
     return {
         plotWindBarbs: function(windBarbCanvas) {
@@ -131,6 +137,7 @@ var SkewTPlots = (function (dim, skewTConfig, windBarbConfig, transform) {
             plotSBParcel(skewTCanvas);
             plotVirtualTempTrace(skewTCanvas);
             plotSBParcelVirtual(skewTCanvas);
+            plotMLParcel(skewTCanvas);
         }
     }
     

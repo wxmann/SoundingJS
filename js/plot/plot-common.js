@@ -9,6 +9,7 @@ var Elements = {
     TEMP_TRACE: "tempTrace",
     DEWPT_TRACE: "dewptTrace",
     SB_PARCEL_TRACE: "sbParcelTrace",
+    ML_PARCEL_TRACE: "mlParcelTrace",
     ISOTHERMS: "isotherms",
     ISOBARS: "isobars",
     MIXING_RATIOS: "mixingRatios",

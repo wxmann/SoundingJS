@@ -74,3 +74,7 @@
 #sbParcelTraceTv {
     stroke:blue; stroke-dasharray: 6,3; stroke-width: 2;
 }
+
+#mlParcelTrace {
+    stroke:green; stroke-width: 2; opacity: 0.5;
+}
